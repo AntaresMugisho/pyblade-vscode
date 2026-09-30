@@ -1,0 +1,265 @@
+
+{# Comement #}
+
+@comment
+    Long comment
+@endcomment
+
+
+{# CONDITIONALS #}
+@if (status == 'active')
+    <p>Your account is active.</p>
+@elif (status == 'pending')
+    <p>Your account is pending approval.</p>
+@else
+    <p>Your account is inactive.</p>
+@endif
+
+
+@unless (user.is_admin)
+    <p>You do not have admin privileges.</p>
+@endunless
+
+
+{# Authentication directives #}
+@auth
+    <p>Welcome back, {{ user.name }}!</p>
+    <a href="/dashboard">Go to Dashboard</a>
+@else
+    <p>You must log in to access this section.</p>
+    <a href="/login">Log in here</a>
+@endauth
+
+@guest
+    <p>Welcome! Please <a href="/login">log in</a> or <a href="/register">sign up</a>.</p>
+@else
+    <p>Hello {{ user.name }}, you are already logged in.</p>
+@endguest
+
+@anonymous
+    <p>Welcome! Please <a href="/login">log in</a> or <a href="/register">sign up</a>.</p>
+@else
+    <p>Hello {{ user.name }}, you are already logged in.</p>
+@endanonymous
+
+{# Match/Switch cases #}
+@match(status)
+    @case('active')
+        <p>Your account is active.</p>
+    @case('pending')
+        <p>Your account is pending approval.</p>
+    @case('inactive')
+        <p>Your account is inactive.</p>
+    @default
+        <p>Status unknown.</p>
+@endmatch
+
+@switch(status)
+    @case('active')
+        <span>Active</span>
+    @case('pending')
+        <span>Pending</span>
+@endswitch
+
+
+{# Loops #}
+<ul id="articles">
+    @for(article in articles)
+        <li>{{ article.title }} <small>{{ article.author }}</small></li>
+    @empty
+        <p>Nothing to show !</p>
+    @endfor
+</ul>
+
+<ul>
+    @for (fruit in fruits)
+        @if (fruit == 'Banana')
+            @continue
+            @continue(False)
+        @endif
+        <li>{{ fruit }}</li>
+
+        @if (fruit == 'Date')
+            @break
+            @break(False)
+        @endif
+
+    @endfor
+</ul>
+
+
+{# Including partials #}
+@include("header")
+
+
+{# Conditional classes and styles #}
+
+@class("list-item", "favorite"=fruit.is_favorite)
+@style("background-color:#000", "color: red"=not fruit.is_favorite)
+
+<li @class("list-item", "favorite"=fruit.is_favorite)>{{ fruit.name }}</li>
+
+<li @style("background-color:#000", "color: red"=not fruit.is_favorite)>{{ fruit.name }}</li>
+
+
+{# Forms #}
+<form novalidate method='post'>
+    @csrf
+    
+    <h1>Contact us</h1>
+        
+    @required
+    @checked
+    @selected
+    @readonly
+    @autofocus
+    @multiple   
+
+    @required(3 > 2)
+
+    <div>
+        <label for="id_name">Name:</label>
+        @field(form.name, class="form-control" placeholder="Enter your name" required autofocus)
+        @error(form.name)
+            <small style="color:red;">{{ message }}</small>
+        @enderror
+    </div>
+    
+    <div>
+        <label for="email">Email:</label>
+        @field(form.email, id='email' class="form-control" placeholder="Enter you email")
+        @error(form.email)
+            <small style="color:red;">{{ message }}</small>
+        @enderror
+    </div>
+
+    <div>
+        <button type="submit">Send</button>
+    </div>
+</form>
+
+
+{# Working with data #}
+@with(full_name=customer.first_name + ' ' + customer.last_name)
+    <h3>Welcome again, {{ full_name }} !</h3>
+
+    <p>Hey {{ full_name }}, we have a surprise for you.</p>
+@endwith
+
+@cycle('bg-gray-100', 'bg-white')
+<tr class="@cycle('bg-gray-100', 'bg-white')">
+
+@if (loop.last)
+    @resetcycle(section_class)
+@endif
+
+@firstof(var1, var2, var3)
+
+@regroup(cities by country as countries)
+
+@ifchanged (date.date)
+    <strong>{{ date.date }}</strong>
+@endifchanged
+
+@now ("%B" as current_month)
+@now
+
+{# URLs #}
+@url("home")
+
+@active('dashboard')active@endactive
+<li class="@active('dashboard')active@endactive">
+
+@querystring(color=my_list)
+
+@static('images/hi.jpg')
+<img src="@static('images/hi.jpg')" alt="Hi!">
+
+
+@get_static_prefix(as STATIC_PREFIX)
+@get_media_prefix(as STATIC_PREFIX)
+
+@get_static_prefix
+@get_media_prefix
+
+@gsp
+@gmp
+
+{# Translations #}
+
+@translate("This is the title" as the_title)
+@trans('Message')
+
+@blocktranslate(book_t=book.title, author_t=author.title() )
+    This is {{ book_t }} by {{ author_t }}.
+@endblocktranslate
+
+@blocktrans(book_t=book.title, author_t=author.title() )
+    This is {{ book_t }} by {{ author_t }}.
+@endblocktrans
+
+@blocktranslate(amount=article.price, counter=i.length)
+    That will cost $ {{ amount }} per year.
+@plural
+    That will cost $ {{ amount }} per {{ counter }} years.
+@endblocktranslate
+
+@lang()
+@lang
+
+@languages
+@languages()
+
+
+{# Components #}
+
+@slot("name")
+@endslot
+
+@component("card")
+@endcomponent
+
+<pb-card />
+<pb-alert>
+
+<pb-nav.menu>
+
+
+{# Template inheritence #}
+{# @extends("layout") #}
+
+@block('main')
+    @parent
+
+    <pb-slot name="title">Contact page</pb-slot>
+
+    <div>
+        <p>Main content</p>
+    </div>
+@endblock
+
+@section('footer')
+    <div></div>
+@endsection
+
+
+{# LIVE COMPONENTS #}
+
+{# Push & Stack #}
+@push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+@endpush
+
+@stack("scripts")
+
+{# Script #}
+@script
+    <script>
+        console.log("Hello world!")
+    </script>
+@endscript
+
+{# PyBlade live styles and scripts #}
+@pbstyles
+@pbscripts
+

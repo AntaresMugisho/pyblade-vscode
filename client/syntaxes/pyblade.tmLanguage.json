@@ -10,6 +10,11 @@
         "begin": "\\{#",
         "end": "#\\}"
       },
+      {
+        "name": "comment.block.pyblade",
+        "begin": "@comment",
+        "end": "@endcomment"
+      },
   
       {
         "begin": "(\\{\\{|\\{!!)",
@@ -21,7 +26,7 @@
       },
   
       {
-        "begin": "@(if|elif|for|active|checked|selected|required|error|break|continue)\\(",
+        "begin": "@(if|elif|for|error)\\(",
         "end": "\\)",
         "captures":{
           "0":{"name":"keyword.control.pyblade"}
@@ -35,7 +40,7 @@
       },
   
       {
-        "begin": "@(extends|yield|section|block|include|method)\\(",
+        "begin": "@(extends|yield|section|block|include|push|stack|slot|component)\\(",
         "end": "\\)",
         "captures":{
           "0":{"name":"keyword.control.pyblade"}
@@ -52,7 +57,7 @@
         ]
       },
       {
-        "begin": "@(url|static|trans|translate|class|props|style|field|livebladeScripts|liveblade_scripts)\\s*\\(",
+        "begin": "@(url|languages|lang|static|translate|trans|class|props|style|field|break|continue|checked|selected|required|autofocus|multiple|readonly|cycle|resetcycle|firstof|regroup|now|querystring|get_static_prefix|get_media_prefix|gsp|gmp)\\s*\\(",
         "end": "\\)",
         "captures":{
           "0": {"name": "support.function.pyblade"}
@@ -61,13 +66,32 @@
         "patterns": [
           {
             "include": "source.python"
+          },
+          {
+            "name": "string.quoted.single.pyblade",
+            "match": "'[^']*'"
+          },
+          {
+            "name": "string.quoted.double.pyblade",
+            "match": "\"[^\"]*\""
           }
         ]
       },
   
       {
         "name": "keyword.control.pyblade",
-        "match": "@(if|elif|else|unless|switch|case|default|for|empty|break|continue|auth|guest|anonymous|csrf|method|field|class|props|required|selected|checked|active|static|extends|yield|section|blocktranslate|endblocktranslate|plural|block|endblock|include|endif|endfor|endswitch|endauth|endguest|endanonymous|enderror)"
+        "match": "@(ifchanged|endifchanged|if|elif|else|ifchanged|languages|lang|unless|match|switch|case|default|for|empty|break|continue|auth|guest|anonymous|csrf|field|class|props|required|selected|checked|autofocus|readonly|multiple|active|static|extends|yield|section|blocktranslate|endblocktranslate|plural|blocktrans|endblocktrans|block|endblock|include|endif|endfor|endswitch|endauth|endguest|endanonymous|enderror|endactive|endsection|stack|endstack|push|endpush|script|endscript|pbstyles|pbscripts|parent|verbatim|endverbatim|spaceless|endspaceless|endunless|endmatch|with|endwith|now|get_static_prefix|get_media_prefix|gsp|gmp|slot|endslot|component|endcomponent)",
+
+        "patterns": [
+          {
+            "name": "string.quoted.single.pyblade",
+            "match": "'[^']*'"
+          },
+          {
+            "name": "string.quoted.double.pyblade",
+            "match": "\"[^\"]*\""
+          }
+        ]
       }, 
 
       {"include": "text.html.basic" }
