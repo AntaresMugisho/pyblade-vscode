@@ -1,0 +1,22 @@
+# Editor and VCS
+.vscode/**
+.vscode-test/**
+.git/**
+.gitignore
+.github/**
+
+# Sources and build config (only compiled output ships)
+client/**/*.ts
+server/**/*.ts
+tsconfig.json
+eslint.config.mjs
+**/*.map
+
+# Compiled tests
+out/client/test/**
+
+# Dev-only files
+test-workspace/**
+bun.lock
+package-lock.json
+*.vsix

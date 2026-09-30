@@ -3,7 +3,7 @@
   "displayName": "PyBlade IntelliSense",
   "description": "IntelliSense and language support for PyBlade templates.",
   "version": "0.2.2",
-  "publisher": "pyblade",
+  "publisher": "antares",
   "pricing": "Free",
   "repository": {
     "type": "git",
@@ -70,11 +70,11 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile",
+    "vscode:prepublish": "bun run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "pretest": "npm run compile && npm run lint",
-    "lint": "eslint src",
+    "pretest": "bun run compile && bun run lint",
+    "lint": "eslint client",
     "test": "vscode-test"
   },
   "devDependencies": {
