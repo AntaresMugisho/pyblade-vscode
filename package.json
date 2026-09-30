@@ -1,5 +1,5 @@
 {
-  "name": "intellisen",
+  "name": "pyblade-intellisense",
   "displayName": "PyBlade IntelliSense",
   "description": "IntelliSense and language support for PyBlade templates.",
   "version": "0.2.2",

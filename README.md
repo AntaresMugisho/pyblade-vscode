@@ -2,8 +2,8 @@
 
 PyBlade IntelliSense provides IntelliSense, syntax highlighting, snippets, and language support for PyBlade templates.
 
->**Note:** PyBlade IntelliSense has moved to the official `pyblade.intellisense` extension. Please install and use this version going forward. The `antares.pyblade-intellisense` extension is no longer maintained and will not receive further updates or support.
-
+<!-- >**Note:** PyBlade IntelliSense has moved to the official `pyblade.intellisense` extension. Please install and use this version going forward. The `antares.pyblade-intellisense` extension is no longer maintained and will not receive further updates or support.
+ -->
 
 ## Features
 
