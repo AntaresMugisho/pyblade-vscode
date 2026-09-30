@@ -1,8 +1,6 @@
-# PyBlade VS Code Extension
+# PyBlade Intellisense for VS Code
 
 Welcome to the **PyBlade VS Code Extension**, the ultimate tool to supercharge your experience with the PyBlade template engine for Python! This extension is designed to provide a seamless, developer-friendly workflow for creating dynamic, secure, and expressive templates in Django or other Python web frameworks.
-
----
 
 ## Features
 
@@ -39,9 +37,6 @@ Welcome to the **PyBlade VS Code Extension**, the ultimate tool to supercharge y
   - Toggling specific features (e.g., live preview, error highlighting).
   - Customizing themes for syntax highlighting.
 
----
-
-
 ## Getting Started
 
 1. **Enable PyBlade in Your Project**: 
@@ -54,15 +49,12 @@ Welcome to the **PyBlade VS Code Extension**, the ultimate tool to supercharge y
 3. **Customize the Extension**:
    Use the **PyBlade** section in the VS Code settings to adjust preferences.
 
----
 
 ## Keybindings
 
 - **Insert Directive Snippet**: `Ctrl+Space` (or `Cmd+Space`) inside a PyBlade template.
 - **Jump to Component**: `Ctrl+Click` (or `Cmd+Click`) on a component name.
 - **Live Preview**: `Ctrl+Shift+P` → Search for "PyBlade: Preview Template".
-
----
 
 ## Future Enhancements
 
@@ -71,26 +63,17 @@ We are continually improving the PyBlade VS Code Extension! Planned updates incl
 - **Framework-Specific Enhancements** for Flask and others.
 - **Community-Suggested Features**—share your ideas with us!
 
----
-
 ## Contributing
 
 We welcome contributions to enhance the PyBlade VS Code Extension! Feel free to:
 - Report bugs or suggest features via [GitHub Issues](https://github.com/AntaresMugisho/PyBladeIntelliSense-vscode/issues).
 - Submit pull requests to our [GitHub Repository](https://github.com/AntaresMugisho/PyBladeIntelliSense-vscode).
 
----
 
-## License
-
-This extension is open-source software, licensed under the [MIT License](LICENSE). 
-
----
 
 ## Support
 
-For assistance, feedback, or feature requests, please contact us at [antaresmugisho@gmail.com](mailto:antaresmugisho@gmail.com). 
+For assistance, feedback, or feature requests, please visit [feedback.pyblade.com](https://feedback.pyblade.com).
 
----
 
-Let **PyBlade IntelliSense**  make your PyBlade projects a joy to work on! 🚀
+We hope **PyBlade IntelliSense** makes your PyBlade projects a joy to work on!
