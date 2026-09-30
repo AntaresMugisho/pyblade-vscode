@@ -6,7 +6,7 @@
   "publisher": "antares",
   "repository": {
     "type": "git",
-    "url": "https://github.com/AntaresMugisho/PyBladeIntelliSense-vscode.git"
+    "url": "https://github.com/AntaresMugisho/pyblade-vscode.git"
   },
   "author": {
     "name": "Antares Mugisho",
