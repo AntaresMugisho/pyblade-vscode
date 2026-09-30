@@ -35,8 +35,8 @@
 
     "folding": {
       "markers": {
-        "start": "^\\s*@(?:if|switch|for|while|section|block|auth|guest)\\b.*$",
-        "end": "^\\s*@(?:endif|endswitch|endfor|endwhile|endsection)\\b.*$"
+        "start": "^\\s*@(?:verbatim|spaceless|comment|if||unless|auth|guest|anonymous|match|switch|for|error|with|active|blocktranslate|blocktrans|component|block|section|push|script)\\b.*$",
+        "end": "^\\s*@(?:endverbatim|ensspaceless|endcomment|endif|endunless|endauth|endguest|endanonymous|endmatch|endswitch|endfor||enderror|endwith|endactive|endblocktranslate|endblocktrans|endcomponent|endblock|endsection|endpush|endscript)\\b.*$"
       }
     }
   }

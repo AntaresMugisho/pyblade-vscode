@@ -2,7 +2,7 @@
   "name": "pyblade-intellisense",
   "displayName": "PyBlade IntelliSense",
   "description": "PyBlade IntelliSense provides tools like syntax highlighting, code snippets, and validation to enhance development with PyBlade templates across editors and IDEs.",
-  "version": "0.0.1",
+  "version": "0.2.1",
   "publisher": "antares",
   "repository": {
     "type": "git",
@@ -27,7 +27,7 @@
     "Programming Languages",
     "Snippets"
   ],
-  "icon": "assets/icon.png",
+  "icon": "assets/pyblade.png",
   "activationEvents": [],
   "main": "./out/client/extension.js",
   "contributes": {
