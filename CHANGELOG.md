@@ -1,6 +1,12 @@
 # Changelog
 
-All notable changes to tthe "pyblade-intellisense" extension will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+All notable changes to tthe "pyblade-intellisense" extension will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
+
+## [0.2.1] - 2026-09-30
+
+### Added
+- New pyblade directives highlighting
+
 
 ## [0.1.0] - 2024-12-07
 
@@ -15,9 +21,6 @@ All notable changes to tthe "pyblade-intellisense" extension will be documented 
 ### Fixed
 - Initial bugs leading to crashes when starting the language server.
 
-
-### Planned
-- The next version will focus on implementing the **Language Server Protocol** (LSP) for **instant error tracking** and additional features.
 
 ## [0.0.1] - 2024-12-26
 
