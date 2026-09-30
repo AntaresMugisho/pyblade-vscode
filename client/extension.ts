@@ -1,9 +1,5 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
-import * as vscode from 'vscode';
-
 import * as path from 'path';
-import { workspace, ExtensionContext } from 'vscode';
+import * as vscode from 'vscode';
 import {
     LanguageClient,
     LanguageClientOptions,
@@ -11,33 +7,95 @@ import {
     TransportKind,
 } from 'vscode-languageclient/node';
 
+let client: LanguageClient | undefined;
+let starting = false;
 
-let client: LanguageClient;
+async function hasPybladeConfig(): Promise<boolean> {
+    const files = await vscode.workspace.findFiles(
+        '**/pyblade.toml',
+        '**/{node_modules,.venv,venv,env,site-packages}/**',
+        1
+    );
+    return files.length > 0;
+}
 
-export function activate(context: vscode.ExtensionContext) {
+async function startClient(context: vscode.ExtensionContext): Promise<void> {
+    if (client || starting) {
+        return;
+    }
+    starting = true;
+
     const serverModule = context.asAbsolutePath(
         path.join('out', 'server', 'server.js')
     );
 
     const serverOptions: ServerOptions = {
         run: { module: serverModule, transport: TransportKind.ipc },
-        debug: { module: serverModule, transport: TransportKind.ipc },
+        debug: {
+            module: serverModule,
+            transport: TransportKind.ipc,
+            options: { execArgv: ['--nolazy', '--inspect=6009'] },
+        },
     };
 
     const clientOptions: LanguageClientOptions = {
         documentSelector: [{ scheme: 'file', language: 'pyblade' }],
+        synchronize: {
+            fileEvents: vscode.workspace.createFileSystemWatcher('**/{pyblade.toml,*.html}'),
+        },
     };
 
-    client = new LanguageClient('pybladeServer', 'PyBlade Language Server', serverOptions, clientOptions);
+    const newClient = new LanguageClient(
+        'pybladeServer',
+        'PyBlade Language Server',
+        serverOptions,
+        clientOptions
+    );
 
-    // Start the client. This will also launch the server
-    client.start();
+    try {
+        await newClient.start();
+        client = newClient;
+    } catch (err) {
+        vscode.window.showErrorMessage(`PyBlade Language Server failed to start: ${err}`);
+    } finally {
+        starting = false;
+    }
 }
 
+async function stopClient(): Promise<void> {
+    const current = client;
+    client = undefined;
+    if (current) {
+        await current.stop();
+    }
+}
+
+export async function activate(context: vscode.ExtensionContext) {
+    if (await hasPybladeConfig()) {
+        await startClient(context);
+    }
+
+    // React to pyblade.toml being created or deleted while VS Code is open
+    const watcher = vscode.workspace.createFileSystemWatcher('**/pyblade.toml');
+
+    context.subscriptions.push(
+        watcher,
+        watcher.onDidCreate(() => startClient(context)),
+        watcher.onDidDelete(async () => {
+            if (!(await hasPybladeConfig())) {
+                await stopClient();
+            }
+        }),
+        vscode.workspace.onDidChangeWorkspaceFolders(async () => {
+            if (await hasPybladeConfig()) {
+                await startClient(context);
+            } else {
+                await stopClient();
+            }
+        })
+    );
+}
 
 export function deactivate(): Thenable<void> | undefined {
-    if (!client) {
-        return undefined;
-    }
-    return client.stop();
+    return client?.stop();
 }
