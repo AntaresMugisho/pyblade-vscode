@@ -1,9 +1,10 @@
 {
-  "name": "pyblade-intellisense",
+  "name": "intellisen",
   "displayName": "PyBlade IntelliSense",
-  "description": "PyBlade IntelliSense provides tools like syntax highlighting, code snippets, and validation to enhance development with PyBlade templates across editors and IDEs.",
-  "version": "0.2.1",
-  "publisher": "antares",
+  "description": "IntelliSense and language support for PyBlade templates.",
+  "version": "0.2.2",
+  "publisher": "pyblade",
+  "pricing": "Free",
   "repository": {
     "type": "git",
     "url": "https://github.com/AntaresMugisho/pyblade-vscode.git"
@@ -20,8 +21,10 @@
     "pyblade",
     "python",
     "django",
+    "flask",
+    "templates",
     "snippets",
-    "highlight"
+    "syntax highlighting"
   ],
   "categories": [
     "Programming Languages",

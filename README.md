@@ -1,6 +1,9 @@
 # PyBlade Intellisense for VS Code
 
-Welcome to the **PyBlade VS Code Extension**, the ultimate tool to supercharge your experience with the PyBlade template engine for Python! This extension is designed to provide a seamless, developer-friendly workflow for creating dynamic, secure, and expressive templates in Django or other Python web frameworks.
+PyBlade IntelliSense provides IntelliSense, syntax highlighting, snippets, and language support for PyBlade templates.
+
+>**Note:** PyBlade IntelliSense has moved to the official `pyblade.intellisense` extension. Please install and use this version going forward. The `antares.pyblade-intellisense` extension is no longer maintained and will not receive further updates or support.
+
 
 ## Features
 
@@ -68,7 +71,6 @@ We are continually improving the PyBlade VS Code Extension! Planned updates incl
 We welcome contributions to enhance the PyBlade VS Code Extension! Feel free to:
 - Report bugs or suggest features via [GitHub Issues](https://github.com/AntaresMugisho/PyBladeIntelliSense-vscode/issues).
 - Submit pull requests to our [GitHub Repository](https://github.com/AntaresMugisho/PyBladeIntelliSense-vscode).
-
 
 
 ## Support
