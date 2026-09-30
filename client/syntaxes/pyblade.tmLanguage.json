@@ -26,7 +26,7 @@
       },
   
       {
-        "begin": "@(if|elif|for|error)\\(",
+        "begin": "@(if|elif|for|error|with|unless|match|switch|case|ifchanged|active)\\s*\\(",
         "end": "\\)",
         "captures":{
           "0":{"name":"keyword.control.pyblade"}
@@ -40,7 +40,7 @@
       },
   
       {
-        "begin": "@(extends|yield|section|block|include|push|stack|slot|component)\\(",
+        "begin": "@(extends|yield|section|block|include|push|stack|slot|component)\\s*\\(",
         "end": "\\)",
         "captures":{
           "0":{"name":"keyword.control.pyblade"}
@@ -80,18 +80,7 @@
   
       {
         "name": "keyword.control.pyblade",
-        "match": "@(ifchanged|endifchanged|if|elif|else|ifchanged|languages|lang|unless|match|switch|case|default|for|empty|break|continue|auth|guest|anonymous|csrf|field|class|props|required|selected|checked|autofocus|readonly|multiple|active|static|extends|yield|section|blocktranslate|endblocktranslate|plural|blocktrans|endblocktrans|block|endblock|include|endif|endfor|endswitch|endauth|endguest|endanonymous|enderror|endactive|endsection|stack|endstack|push|endpush|script|endscript|pbstyles|pbscripts|parent|verbatim|endverbatim|spaceless|endspaceless|endunless|endmatch|with|endwith|now|get_static_prefix|get_media_prefix|gsp|gmp|slot|endslot|component|endcomponent)",
-
-        "patterns": [
-          {
-            "name": "string.quoted.single.pyblade",
-            "match": "'[^']*'"
-          },
-          {
-            "name": "string.quoted.double.pyblade",
-            "match": "\"[^\"]*\""
-          }
-        ]
+        "match": "@(ifchanged|endifchanged|if|elif|else|ifchanged|languages|lang|unless|match|switch|case|default|for|empty|break|continue|auth|guest|anonymous|csrf|field|class|props|required|selected|checked|autofocus|readonly|multiple|active|static|extends|yield|section|blocktranslate|endblocktranslate|plural|blocktrans|endblocktrans|block|endblock|include|endif|endfor|endswitch|endauth|endguest|endanonymous|enderror|endactive|endsection|stack|endstack|push|endpush|script|endscript|pbstyles|pbscripts|parent|verbatim|endverbatim|spaceless|endspaceless|endunless|endmatch|with|endwith|now|get_static_prefix|get_media_prefix|gsp|gmp|slot|endslot|component|endcomponent)\\b"
       }, 
 
       {"include": "text.html.basic" }
