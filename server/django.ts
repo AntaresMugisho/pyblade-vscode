@@ -26,11 +26,11 @@ function isDir(p: string): boolean {
     }
 }
 
-/** Source text without full-line Python comments. */
+/** Source text with full-line Python comments blanked out (line numbers are kept). */
 function withoutComments(text: string): string {
     return text
         .split(/\r?\n/)
-        .filter((line) => !/^\s*#/.test(line))
+        .map((line) => (/^\s*#/.test(line) ? '' : line))
         .join('\n');
 }
 
@@ -47,6 +47,12 @@ export interface UrlName {
     name: string;
     /** urls.py that defines it, relative to the project base */
     file: string;
+    /** Absolute path of that urls.py */
+    path: string;
+    /** Position of the name literal in the file (0-based) */
+    line: number;
+    character: number;
+    length: number;
 }
 
 /**
@@ -66,13 +72,32 @@ export function findUrlNames(projects: Project[]): UrlName[] {
 
             for (const m of text.matchAll(/\bname\s*=\s*(['"])([\w.:-]+)\1/g)) {
                 const name = namespace ? `${namespace}:${m[2]}` : m[2];
-                if (!found.has(name)) {
-                    found.set(name, { name, file: relativeToBase(project, file) });
+                if (found.has(name)) {
+                    continue;
                 }
+
+                // m[0] ends with <name><closing quote>
+                const nameStart = (m.index ?? 0) + m[0].length - 1 - m[2].length;
+                const before = text.slice(0, nameStart);
+                const lineStart = before.lastIndexOf('\n') + 1;
+
+                found.set(name, {
+                    name,
+                    file: relativeToBase(project, file),
+                    path: file,
+                    line: (before.match(/\n/g) ?? []).length,
+                    character: nameStart - lineStart,
+                    length: m[2].length,
+                });
             }
         }
     }
     return [...found.values()];
+}
+
+/** The definition of a URL name (for go-to-definition). */
+export function resolveUrl(projects: Project[], name: string): UrlName | undefined {
+    return findUrlNames(projects).find((u) => u.name === name);
 }
 
 // ---------------------------------------------------------------------------
@@ -217,13 +242,17 @@ function staticDirsFromSettings(
  *    (BASE_DIR / "assets", os.path.join(BASE_DIR, "assets"), "assets").
  */
 export function findStaticRoots(project: Project): string[] {
-    const roots = new Set<string>(findRoots(project, 'static').map((r) => path.resolve(r)));
+    // Same priority as Django: STATICFILES_DIRS first, then the "static" folders of apps
+    const roots = new Set<string>();
 
     const visited = new Set<string>();
     for (const settings of settingsFilesOf(project)) {
         for (const dir of staticDirsFromSettings(settings, project, visited)) {
             roots.add(dir);
         }
+    }
+    for (const root of findRoots(project, 'static')) {
+        roots.add(path.resolve(root));
     }
     return [...roots];
 }
@@ -245,4 +274,22 @@ export function findStaticFiles(projects: Project[]): StaticFile[] {
         }
     }
     return [...found.values()];
+}
+
+/** Finds the file behind a @static('...') name, trying the static folders in priority order. */
+export function resolveStaticFile(projects: Project[], name: string): string | undefined {
+    const clean = name.replace(/\\/g, '/').replace(/^\/+/, '');
+    if (!clean || clean.split('/').includes('..')) {
+        return undefined;
+    }
+
+    for (const project of projects) {
+        for (const root of findStaticRoots(project)) {
+            const file = path.join(root, clean);
+            if (isFile(file)) {
+                return file;
+            }
+        }
+    }
+    return undefined;
 }

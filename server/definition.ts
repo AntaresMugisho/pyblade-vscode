@@ -4,6 +4,7 @@ import { pathToFileURL } from 'url';
 import { Location, LocationLink, Position, Range } from 'vscode-languageserver/node';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { Project, findRoots } from './config';
+import { resolveStaticFile, resolveUrl } from './django';
 
 function isFile(p: string): boolean {
     try {
@@ -70,15 +71,26 @@ export function resolveTemplate(projects: Project[], name: string): string | und
     return undefined;
 }
 
+type Kind = 'component' | 'template' | 'url' | 'static';
+
+/** Directive -> what its first string argument refers to */
+const DIRECTIVE_KINDS: Record<string, Kind> = {
+    include: 'template',
+    extends: 'template',
+    component: 'component',
+    url: 'url',
+    static: 'static',
+};
+
 interface Target {
-    kind: 'component' | 'template';
+    kind: Kind;
     name: string;
     /** Character offsets of the name inside the line */
     start: number;
     end: number;
 }
 
-/** Finds the component or template name under the cursor, if any. */
+/** Finds the component, template, URL or static name under the cursor, if any. */
 function targetAt(line: string, character: number): Target | undefined {
     // <pb-nav.menu  /  </pb-nav.menu
     for (const m of line.matchAll(/<\/?pb-([\w.-]+)/g)) {
@@ -89,18 +101,13 @@ function targetAt(line: string, character: number): Target | undefined {
         }
     }
 
-    // @component('nav.menu')  @include('partials/nav.html')  @extends("layouts/base")
-    for (const m of line.matchAll(/@(include|extends|component)\s*\(\s*(['"])([^'"]*)\2/g)) {
+    // @component('nav.menu')  @extends("layouts.base")  @url('blog:post_list')  @static('css/app.css')
+    for (const m of line.matchAll(/@(include|extends|component|url|static)\s*\(\s*(['"])([^'"]*)\2/g)) {
         const name = m[3];
         const end = (m.index ?? 0) + m[0].length - 1; // index of the closing quote
         const start = end - name.length;
         if (character >= start && character <= end) {
-            return {
-                kind: m[1] === 'component' ? 'component' : 'template',
-                name,
-                start,
-                end,
-            };
+            return { kind: DIRECTIVE_KINDS[m[1]], name, start, end };
         }
     }
     return undefined;
@@ -121,21 +128,39 @@ export function getDefinition(
         return null;
     }
 
-    const file =
-        target.kind === 'component'
-            ? resolveComponent(projects, target.name)
-            : resolveTemplate(projects, target.name);
+    // Where to land: the top of the file, or an exact range (URL names)
+    let file: string | undefined;
+    let targetRange = Range.create(0, 0, 0, 0);
+
+    switch (target.kind) {
+        case 'component':
+            file = resolveComponent(projects, target.name);
+            break;
+        case 'template':
+            file = resolveTemplate(projects, target.name);
+            break;
+        case 'static':
+            file = resolveStaticFile(projects, target.name);
+            break;
+        case 'url': {
+            const url = resolveUrl(projects, target.name);
+            if (url) {
+                file = url.path;
+                targetRange = Range.create(url.line, url.character, url.line, url.character + url.length);
+            }
+            break;
+        }
+    }
     if (!file) {
         return null;
     }
 
     const uri = pathToFileURL(file).toString();
-    const top = Range.create(0, 0, 0, 0);
 
     if (linkSupport) {
         // originSelectionRange makes the whole name (dots included) the underlined link
         const origin = Range.create(position.line, target.start, position.line, target.end);
-        return [LocationLink.create(uri, top, top, origin)];
+        return [LocationLink.create(uri, targetRange, targetRange, origin)];
     }
-    return [Location.create(uri, top)];
+    return [Location.create(uri, targetRange)];
 }
