@@ -1,248 +1,370 @@
 {
   "PyBlade if Statement": {
-    "prefix": "if",
+    "prefix": "@if",
     "body": ["@if(${1:condition})", "\t$0", "@endif"],
     "description": "Insert a PyBlade @if statement"
   },
-
   "PyBlade elif": {
-    "prefix": "elif",
-    "body": ["@elif (${1:condition})", "\t$0"],
+    "prefix": "@elif",
+    "body": ["@elif(${1:condition})", "\t$0"],
     "description": "PyBlade @elif directive"
   },
-
-  "PyBlade if and else statement": {
-    "prefix": "ifelse",
-    "body": ["@if(${1:condition})", "\t$2", "@else", "\t$3", "@endif"],
-    "description": "Insert a PyBlade @if ... @else statement"
-  },
-
-  "PyBlade if and elif Statement": {
-    "prefix": "ifelif",
-    "body": ["@if(${1:condition})", "\t$2", "@elif (${3:condition})", "\t$4", "@endif"],
-    "description": "Insert a PyBlade @if ... @elif statement"
-  },
-
-  "PyBlade if, elif and else Statement": {
-    "prefix": "ifelifelse",
-    "body": ["@if(${1:condition})", "\t$2", "@elif (${3:condition})", "\t$4", "@else", "\t$5", "@endif"],
-    "description": "Insert a PyBlade @if ... @elif ... @else statement"
-  },
-
   "PyBlade else": {
-    "prefix": "else",
+    "prefix": "@else",
     "body": ["@else", "\t$0"],
     "description": "PyBlade @else directive"
   },
-
-
-  "PyBlade switch statement": {
-    "prefix": "switch",
-    "body": ["@switch(${1:variable})", "\t@case(${2:value})", "\t\t$3", "\t@default", "\t\t$4","@endswitch"],
-    "description": "PyBlade @witch directive"
+  "PyBlade if and else statement": {
+    "prefix": "@ifelse",
+    "body": ["@if(${1:condition})", "\t$2", "@else", "\t$0", "@endif"],
+    "description": "Insert a PyBlade @if ... @else statement"
+  },
+  "PyBlade if and elif Statement": {
+    "prefix": "@ifelif",
+    "body": ["@if(${1:condition})", "\t$2", "@elif(${3:condition})", "\t$0", "@endif"],
+    "description": "Insert a PyBlade @if ... @elif statement"
+  },
+  "PyBlade if, elif and else Statement": {
+    "prefix": "@ifelifelse",
+    "body": ["@if(${1:condition})", "\t$2", "@elif(${3:condition})", "\t$4", "@else", "\t$0", "@endif"],
+    "description": "Insert a PyBlade @if ... @elif ... @else statement"
+  },
+  "PyBlade unless": {
+    "prefix": "@unless",
+    "body": ["@unless(${1:condition})", "\t$0", "@endunless"],
+    "description": "PyBlade @unless directive"
   },
 
+  "PyBlade switch statement": {
+    "prefix": "@switch",
+    "body": ["@switch(${1:variable})", "\t@case(${2:value})", "\t\t$3", "\t@default", "\t\t$0", "@endswitch"],
+    "description": "PyBlade @switch directive"
+  },
   "PyBlade case statement": {
-    "prefix": "case",
+    "prefix": "@case",
     "body": ["@case(${1:value})", "\t$0"],
     "description": "PyBlade @case directive"
   },
-
   "PyBlade default statement": {
-    "prefix": "default",
-    "body": ["@default(${1:value})", "\t$0"],
+    "prefix": "@default",
+    "body": ["@default", "\t$0"],
     "description": "PyBlade @default directive"
+  },
+  "PyBlade match statement": {
+    "prefix": "@match",
+    "body": ["@match(${1:variable})", "\t@case(${2:value})", "\t\t$3", "\t@default", "\t\t$0", "@endmatch"],
+    "description": "PyBlade @match directive"
+  },
+
+  "PyBlade with": {
+    "prefix": "@with",
+    "body": ["@with(${1:name}=${2:value})", "\t$0", "@endwith"],
+    "description": "PyBlade @with directive"
+  },
+  "PyBlade ifchanged": {
+    "prefix": "@ifchanged",
+    "body": ["@ifchanged(${1:variable})", "\t$0", "@endifchanged"],
+    "description": "PyBlade @ifchanged directive"
+  },
+
+  "PyBlade for Loop": {
+    "prefix": "@for",
+    "body": ["@for(${1:variable} in ${2:iterable})", "\t$0", "@endfor"],
+    "description": "Insert a PyBlade @for loop"
+  },
+  "PyBlade empty loop": {
+    "prefix": "@empty",
+    "body": ["@empty", "\t$0"],
+    "description": "PyBlade @empty loop directive"
+  },
+  "PyBlade for empty loop": {
+    "prefix": "@forempty",
+    "body": ["@for(${1:variable} in ${2:iterable})", "\t$3", "@empty", "\t$0", "@endfor"],
+    "description": "PyBlade @for ... @empty loop directive"
+  },
+  "PyBlade break directive": {
+    "prefix": "@break",
+    "body": ["@break"],
+    "description": "PyBlade @break directive"
+  },
+  "PyBlade continue directive": {
+    "prefix": "@continue",
+    "body": ["@continue"],
+    "description": "PyBlade @continue directive"
+  },
+  "PyBlade cycle": {
+    "prefix": "@cycle",
+    "body": ["@cycle(${1:'odd'}, ${2:'even'})"],
+    "description": "PyBlade @cycle directive"
+  },
+  "PyBlade resetcycle": {
+    "prefix": "@resetcycle",
+    "body": ["@resetcycle"],
+    "description": "PyBlade @resetcycle directive"
+  },
+  "PyBlade firstof": {
+    "prefix": "@firstof",
+    "body": ["@firstof(${1:var1}, ${2:var2}, ${3:'default'})"],
+    "description": "PyBlade @firstof directive"
+  },
+  "PyBlade now": {
+    "prefix": "@now",
+    "body": ["@now(${1:'Y-m-d'})"],
+    "description": "PyBlade @now directive"
   },
 
   "PyBlade auth": {
-    "prefix": "auth",
+    "prefix": "@auth",
     "body": ["@auth", "\t$0", "@endauth"],
     "description": "PyBlade @auth directive"
   },
-
   "PyBlade auth else": {
-    "prefix": "auth",
-    "body": ["@auth", "\t$0", "@else", "\t$1", "@endauth"],
-    "description": "PyBlade @auth directive"
+    "prefix": "@authelse",
+    "body": ["@auth", "\t$1", "@else", "\t$0", "@endauth"],
+    "description": "PyBlade @auth ... @else directive"
   },
-
   "PyBlade guest": {
-    "prefix": "guest",
+    "prefix": "@guest",
     "body": ["@guest", "\t$0", "@endguest"],
     "description": "PyBlade @guest directive"
   },
-
   "PyBlade guest else": {
-    "prefix": "guest",
-    "body": ["@guest", "\t$0", "@else", "\t$1", "@endguest"],
-    "description": "PyBlade @guest directive"
+    "prefix": "@guestelse",
+    "body": ["@guest", "\t$1", "@else", "\t$0", "@endguest"],
+    "description": "PyBlade @guest ... @else directive"
+  },
+  "PyBlade anonymous": {
+    "prefix": "@anonymous",
+    "body": ["@anonymous", "\t$0", "@endanonymous"],
+    "description": "PyBlade @anonymous directive"
   },
 
   "PyBlade active class": {
-    "prefix": "active",
+    "prefix": "@active",
     "body": ["@active(${1:condition})"],
-    "description": "PyBlade @ctive directive"
+    "description": "PyBlade @active directive"
   },
-
   "Pyblade checked directive": {
-    "prefix": "checked",
+    "prefix": "@checked",
     "body": ["@checked(${1:condition})"],
     "description": "PyBlade @checked directive"
   },
-
   "PyBlade required": {
-    "prefix": "required",
+    "prefix": "@required",
     "body": ["@required(${1:condition})"],
     "description": "PyBlade @required directive"
   },
-
   "PyBlade selected": {
-    "prefix": "selected",
+    "prefix": "@selected",
     "body": ["@selected(${1:condition})"],
     "description": "PyBlade @selected directive"
   },
-
+  "PyBlade autofocus": {
+    "prefix": "@autofocus",
+    "body": ["@autofocus(${1:condition})"],
+    "description": "PyBlade @autofocus directive"
+  },
+  "PyBlade multiple": {
+    "prefix": "@multiple",
+    "body": ["@multiple(${1:condition})"],
+    "description": "PyBlade @multiple directive"
+  },
+  "PyBlade readonly": {
+    "prefix": "@readonly",
+    "body": ["@readonly(${1:condition})"],
+    "description": "PyBlade @readonly directive"
+  },
   "Pyblade class": {
-    "prefix": "class",
+    "prefix": "@class",
     "body": ["@class({${1:'class_name':condition}})"],
     "description": "PyBlade @class directive"
   },
-
   "PyBlade style": {
-    "prefix": "style",
+    "prefix": "@style",
     "body": ["@style({${1:'css_property:value;':condition}})"],
     "description": "PyBlade @style directive"
   },
-
   "Pyblade props": {
-    "prefix": "props",
+    "prefix": "@props",
     "body": ["@props({${1:'variable':'value'}})"],
     "description": "PyBlade @props directive"
   },
 
-
-
-  "PyBlade for Loop": {
-    "prefix": "for",
-    "body": ["@for(${1:variable} in ${2:iterable})", "\t$0", "@endfor"],
-    "description": "Insert a PyBlade @for loop"
-  },
-
-  "PyBlade empty loop": {
-    "prefix": "empty",
-    "body": ["@empty", "\t$0"],
-    "description": "PyBlade @empty loop directive"
-  },
-
-  "PyBlade for empty loop": {
-    "prefix": "forempty",
-    "body": ["@for(${1:variable} in ${2:iterable})", "\t$0", "@empty", "\t$1", "@endfor"],
-    "description": "PyBlade @for ... @empty loop directive"
-  },
-
-  "PyBlade break directive": {
-    "prefix": "break",
-    "body": ["@break"],
-    "description": "PyBlade @break directive"
-  },
-
-  "PyBlade continue directive": {
-    "prefix": "continue",
-    "body": ["@continue"],
-    "description": "PyBlade @continue directive"
-  },
-
-
-
   "PyBlade url": {
-    "prefix": "url",
+    "prefix": "@url",
     "body": ["@url(${1:'name'})"],
     "description": "PyBlade @url directive"
   },
-
   "PyBlade static": {
-    "prefix": "static",
+    "prefix": "@static",
     "body": ["@static(${1:'path'})"],
     "description": "PyBlade @static directive"
   },
+  "PyBlade get_static_prefix": {
+    "prefix": "@get_static_prefix",
+    "body": ["@get_static_prefix"],
+    "description": "PyBlade @get_static_prefix directive"
+  },
+  "PyBlade gsp": {
+    "prefix": "@gsp",
+    "body": ["@gsp"],
+    "description": "PyBlade @gsp directive (short for @get_static_prefix)"
+  },
+  "PyBlade get_media_prefix": {
+    "prefix": "@get_media_prefix",
+    "body": ["@get_media_prefix"],
+    "description": "PyBlade @get_media_prefix directive"
+  },
+  "PyBlade gmp": {
+    "prefix": "@gmp",
+    "body": ["@gmp"],
+    "description": "PyBlade @gmp directive (short for @get_media_prefix)"
+  },
 
   "trans": {
-    "prefix": "trans",
+    "prefix": "@trans",
     "body": ["@trans(${1:'message'})"],
     "description": "PyBlade @translate directive (short)"
   },
-
   "translate": {
-    "prefix": "translate",
+    "prefix": "@translate",
     "body": ["@translate(${1:'message'})"],
     "description": "PyBlade @translate directive (long)"
   },
-
   "Pyblade Block translate": {
-    "prefix": "blocktranslate",
+    "prefix": "@blocktranslate",
     "body": ["@blocktranslate", "\t$0", "@endblocktranslate"],
     "description": "PyBlade @blocktranslate directive"
   },
-
+  "Pyblade Block trans": {
+    "prefix": "@blocktrans",
+    "body": ["@blocktrans", "\t$0", "@endblocktrans"],
+    "description": "PyBlade @blocktrans directive (short)"
+  },
   "PyBlade Plural in block translates": {
-    "prefix": "plural",
+    "prefix": "@plural",
     "body": ["@plural"],
     "description": "PyBlade @plural directive"
   },
 
   "PyBlade csrf": {
-    "prefix": "csrf",
+    "prefix": "@csrf",
     "body": ["@csrf"],
-    "description": "PyBlade @scrf directive"
+    "description": "PyBlade @csrf directive"
   },
-
-  "PyBlademethod": {
-    "prefix": "method",
-    "body": ["@method(${1:'HTTP_METHOD'})"],
-    "description": "PyBlade @method directive"
-  },
-
   "PyBlade field": {
-    "prefix": "field",
+    "prefix": "@field",
     "body": ["@field(${1:form.field_name})"],
     "description": "PyBlade @field directive"
   },
-
   "Pyblade error": {
-    "prefix": "error",
+    "prefix": "@error",
     "body": ["@error(${1:form.field_name})", "\t$0", "@enderror"],
     "description": "PyBlade @error directive"
   },
 
-
-
+  "PyBlade extends": {
+    "prefix": "@extends",
+    "body": ["@extends(${1:'layout_path'})"],
+    "description": "PyBlade @extends directive"
+  },
   "Pyblade block": {
-    "prefix": "block",
+    "prefix": "@block",
     "body": ["@block(${1:'name'})", "\t$0", "@endblock"],
     "description": "PyBlade @block directive"
   },
-
+  "PyBlade parent": {
+    "prefix": "@parent",
+    "body": ["@parent"],
+    "description": "PyBlade @parent directive"
+  },
   "Pyblade section": {
-    "prefix": "section",
+    "prefix": "@section",
     "body": ["@section(${1:'name'})", "\t$0", "@endsection"],
     "description": "PyBlade @section directive"
   },
-
-  "PyBlade include": {
-    "prefix": "include",
-    "body": ["@include(${1:'partial_path'})"],
-    "description": "Insert a PyBlade @include directive"
-  },
-
   "PyBlade yield": {
-    "prefix": "yield",
+    "prefix": "@yield",
     "body": ["@yield(${1:'block_name'})"],
     "description": "PyBlade @yield directive"
   },
+  "PyBlade include": {
+    "prefix": "@include",
+    "body": ["@include(${1:'partial_path'})"],
+    "description": "Insert a PyBlade @include directive"
+  },
+  "PyBlade push": {
+    "prefix": "@push",
+    "body": ["@push(${1:'name'})", "\t$0", "@endpush"],
+    "description": "PyBlade @push directive"
+  },
+  "PyBlade component inline": {
+    "prefix": "@component",
+    "body": ["@component(${1:'nav.menu'})"],
+    "description": "PyBlade @component directive"
+  },
 
-  "PyBlade extends": {
-    "prefix": "extends",
-    "body": ["@extends(${1:'layout_path'})"],
-    "description": "PyBlade @extends directive"
+  "PyBlade slot": {
+    "prefix": "@slot",
+    "body": ["@slot(${1:'name'})", "\t$0", "@endslot"],
+    "description": "PyBlade @slot directive"
+  },
+
+  "PyBlade script": {
+    "prefix": "@script",
+    "body": ["@script", "\t$0", "@endscript"],
+    "description": "PyBlade @script directive"
+  },
+  "PyBlade pbstyles": {
+    "prefix": "@pbstyles",
+    "body": ["@pbstyles"],
+    "description": "PyBlade @pbstyles directive"
+  },
+  "PyBlade pbscripts": {
+    "prefix": "@pbscripts",
+    "body": ["@pbscripts"],
+    "description": "PyBlade @pbscripts directive"
+  },
+
+  "PyBlade comment": {
+    "prefix": "@comment",
+    "body": ["@comment", "\t$0", "@endcomment"],
+    "description": "PyBlade @comment block"
+  },
+  "PyBlade verbatim": {
+    "prefix": "@verbatim",
+    "body": ["@verbatim", "\t$0", "@endverbatim"],
+    "description": "PyBlade @verbatim directive"
+  },
+  "PyBlade spaceless": {
+    "prefix": "@spaceless",
+    "body": ["@spaceless", "\t$0", "@endspaceless"],
+    "description": "PyBlade @spaceless directive"
+  },
+
+  "PyBlade stack": {
+    "prefix": "@stack",
+    "body": ["@stack(${1:'scripts'})"],
+    "description": "PyBlade @stack directive"
+  },
+  "PyBlade lang": {
+    "prefix": "@lang",
+    "body": ["@lang"],
+    "description": "PyBlade @lang directive (arguments are optional)"
+  },
+  "PyBlade languages": {
+    "prefix": "@languages",
+    "body": ["@languages"],
+    "description": "PyBlade @languages directive (arguments are optional)"
+  },
+  "PyBlade regroup": {
+    "prefix": "@regroup",
+    "body": ["@regroup(${1:items}, ${2:'attribute'}, ${3:'grouped'})"],
+    "description": "PyBlade @regroup directive"
+  },
+  "PyBlade querystring": {
+    "prefix": "@querystring",
+    "body": ["@querystring(${1:page}=${2:value})"],
+    "description": "PyBlade @querystring directive"
   }
 }
