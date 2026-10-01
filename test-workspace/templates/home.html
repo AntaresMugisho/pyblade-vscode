@@ -265,17 +265,24 @@
 
 <pb-counter />
 
+@include("layouts.app")
 
 @include("layouts/app.html")
 
-@extends("layouts/base.html")
+@extends("layouts.base")
 
 @component('app.button')
 
 @component('nav.menu')
 
-@component('')
-
 <pb-app.button />
 
-pb-
+<pb-bookmark />
+
+@component("test")
+
+
+<pb-test />
+
+{# Hover on <pb-  #}
+{# Click on file names -> Go to definition #}

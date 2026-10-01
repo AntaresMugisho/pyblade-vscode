@@ -16,6 +16,7 @@ import { fileURLToPath } from 'url';
 import { END_TAGS, findDirectives, getDirective } from './directives';
 import { discoverProjects, Project } from './config';
 import { getCompletions } from './completion';
+import { getDefinition } from './definition';
 
 const connection = createConnection(ProposedFeatures.all);
 const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
@@ -23,6 +24,7 @@ const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 let roots: string[] = [];
 let projects: Project[] = [];
 let supportsFolderChanges = false;
+let supportsLinks = false;
 
 function uriToPath(uri: string): string | undefined {
     try {
@@ -62,11 +64,13 @@ connection.onInitialize((params: InitializeParams): InitializeResult => {
     projects = discoverProjects(roots);
 
     supportsFolderChanges = !!params.capabilities.workspace?.workspaceFolders;
+    supportsLinks = !!params.capabilities.textDocument?.definition?.linkSupport;
 
     return {
         capabilities: {
             textDocumentSync: TextDocumentSyncKind.Full,
             hoverProvider: true,
+            definitionProvider: true,
             completionProvider: { triggerCharacters: ["'", '"', '/', '.', '-'] },
             workspace: supportsFolderChanges
                 ? { workspaceFolders: { supported: true, changeNotifications: true } }
@@ -134,6 +138,14 @@ connection.onHover((params): Hover | null => {
             end: doc.positionAt(directive.nameEnd),
         },
     };
+});
+
+connection.onDefinition((params) => {
+    const doc = documents.get(params.textDocument.uri);
+    if (!doc) {
+        return null;
+    }
+    return getDefinition(doc, params.position, projects, supportsLinks);
 });
 
 connection.onCompletion((params): CompletionItem[] => {
