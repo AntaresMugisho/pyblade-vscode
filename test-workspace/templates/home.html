@@ -146,6 +146,9 @@
     <p>Hey {{ full_name }}, we have a surprise for you.</p>
 @endwith
 
+@ratio(x, y, "100")
+@widthratio(x, y, z)
+
 @cycle('bg-gray-100', 'bg-white')
 <tr class="@cycle('bg-gray-100', 'bg-white')">
 
@@ -275,7 +278,9 @@
 
 @component('nav.menu')
 
-<pb-app.button />
+@include("antares.base")
+
+<pb-app.buton />
 
 <pb-bookmark />
 
@@ -284,7 +289,9 @@
 
 <pb-test />
 
-{# Hover on <pb-  #}
-{# Click on file names -> Go to definition #}
-
 @url("app:index")
+
+@if(False)
+    <p></p>
+@else
+    <p></p>

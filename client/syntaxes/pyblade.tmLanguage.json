@@ -57,7 +57,7 @@
         ]
       },
       {
-        "begin": "@(url|languages|lang|static|translate|trans|class|props|style|field|break|continue|checked|selected|required|autofocus|multiple|readonly|cycle|resetcycle|firstof|regroup|now|querystring|get_static_prefix|get_media_prefix|gsp|gmp)\\s*\\(",
+        "begin": "@(url|languages|lang|widthratio|ratio|static|translate|trans|class|props|style|field|break|continue|checked|selected|required|autofocus|multiple|readonly|cycle|resetcycle|firstof|regroup|now|querystring|get_static_prefix|get_media_prefix|gsp|gmp)\\s*\\(",
         "end": "\\)",
         "captures":{
           "0": {"name": "support.function.pyblade"}
