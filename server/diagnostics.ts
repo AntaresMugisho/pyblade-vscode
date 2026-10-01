@@ -20,7 +20,7 @@ const MAX_LENGTH = 1_000_000;
  * A stray closing tag (e.g. `@endsection` alone) is still reported.
  * Edit this list to match how PyBlade really works.
  */
-const SOFT_BLOCKS = new Set(['component', 'slot', 'section', 'push', 'script', 'active', 'stack', 'regroup', 'cycle', 'ifchanged', 'querystring', 'firstof', 'debug', 'now', 'translate', 'trans', 'url', 'static', 'get_media_prefix', 'get_static_prefix', 'gmp', 'gesp', 'ratio', 'witdhratio', 'lang', 'languages', 'pbscripts', 'pbstyles']);
+const SOFT_BLOCKS = new Set(['component', 'slot', 'section', 'push', 'script', 'active', 'stack', 'regroup', 'cycle', 'resetcycle', 'querystring', 'firstof', 'debug', 'now', 'translate', 'trans', 'u,rl', 'static', 'get_media_prefix', 'get_static_prefix', 'gmp', 'gesp', 'ratio', 'witdhratio', 'lang', 'languages', 'pbscripts', 'pbstyles', 'yield', 'props', 'style', 'class', 'required', 'selected', 'checked', 'multiple', 'autofocus', 'readonly', 'field']);
 
 /** Directives that only make sense inside another block (@if ... @else ... @endif). */
 const INTERMEDIATES = new Set(['else', 'elif', 'empty', 'case', 'default', 'plural', 'break', 'continue', 'parent']);
