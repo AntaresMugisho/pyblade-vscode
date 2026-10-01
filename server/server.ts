@@ -42,7 +42,9 @@ function logProjects(): void {
                   projects
                       .map(
                           (p) =>
-                              `${p.base} (templates="${p.config.templates}", components="${p.config.components}")`
+                              `${p.base} (templates="${p.config.templates}", components="${p.config.components}"` +
+                              (p.config.settings ? `, settings="${p.config.settings}"` : '') +
+                              ')'
                       )
                       .join('; ')
     );
@@ -71,7 +73,7 @@ connection.onInitialize((params: InitializeParams): InitializeResult => {
             textDocumentSync: TextDocumentSyncKind.Full,
             hoverProvider: true,
             definitionProvider: true,
-            completionProvider: { triggerCharacters: ["'", '"', '/', '.', '-'] },
+            completionProvider: { triggerCharacters: ["'", '"', '/', '.', '-', ':'] },
             workspace: supportsFolderChanges
                 ? { workspaceFolders: { supported: true, changeNotifications: true } }
                 : undefined,

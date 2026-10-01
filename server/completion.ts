@@ -9,15 +9,24 @@ import {
 } from 'vscode-languageserver/node';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { Project, findRoots, listFiles } from './config';
+import { findStaticFiles, findUrlNames } from './django';
 
 export type Log = (message: string) => void;
 const noLog: Log = () => {};
 
-const TEMPLATE_DIRECTIVES = new Set(['include', 'extends']);
-const COMPONENT_DIRECTIVES = new Set(['component']);
+type Kind = 'template' | 'component' | 'url' | 'static';
+
+/** Directive -> what its first string argument refers to */
+const DIRECTIVE_KINDS: Record<string, Kind> = {
+    include: 'template',
+    extends: 'template',
+    component: 'component',
+    url: 'url',
+    static: 'static',
+};
 
 interface ArgContext {
-    kind: 'template' | 'component';
+    kind: Kind;
     /** Text already typed inside the string (or after "pb-") */
     typed: string;
     /** True for a bare "pb-" typed without "<": accepting inserts the whole tag */
@@ -25,8 +34,8 @@ interface ArgContext {
 }
 
 /**
- * Looks at the text before the cursor and decides whether we are typing a
- * template name, a component name, or neither.
+ * Looks at the text before the cursor and decides what is being typed:
+ * a template, component, URL name or static file name, or nothing we handle.
  *
  * `textBefore` is a few lines of text ending at the cursor; it is only used to
  * tell whether a bare "pb-" is inside an HTML tag (e.g. class="pb-4").
@@ -49,19 +58,17 @@ export function getArgContext(
         return insideTag ? undefined : { kind: 'component', typed: bare[1], bare: true };
     }
 
-    // @include('par   @component("nav.   (first argument, still unclosed)
+    // @include('par   @url("blog:   @static('css/   (first argument, still unclosed)
     const arg = /@(\w+)\s*\(\s*(['"])([^'"]*)$/.exec(linePrefix);
-    if (!arg) {
+    if (!arg || !Object.hasOwn(DIRECTIVE_KINDS, arg[1])) {
         return undefined;
     }
-    if (TEMPLATE_DIRECTIVES.has(arg[1])) {
-        return { kind: 'template', typed: arg[3] };
-    }
-    if (COMPONENT_DIRECTIVES.has(arg[1])) {
-        return { kind: 'component', typed: arg[3] };
-    }
-    return undefined;
+    return { kind: DIRECTIVE_KINDS[arg[1]], typed: arg[3] };
 }
+
+// ---------------------------------------------------------------------------
+// Components
+// ---------------------------------------------------------------------------
 
 interface Found {
     name: string;
@@ -139,21 +146,34 @@ function componentNames(projects: Project[], log: Log): Found[] {
     return [...found.values()];
 }
 
+// ---------------------------------------------------------------------------
+// Templates
+// ---------------------------------------------------------------------------
+
 /**
- * Template names relative to each templates folder, with "/" separators and
- * the .html extension (Django style). Adjust here if PyBlade expects another form.
+ * Template names in dot notation, without extension:
+ *   layouts/base.html -> layouts.base
+ * Returns name -> file relative to the project base.
  */
-function templateNames(projects: Project[]): string[] {
-    const names = new Set<string>();
+function templateNames(projects: Project[]): Map<string, string> {
+    const names = new Map<string, string>();
     for (const project of projects) {
         for (const root of findRoots(project, project.config.templates)) {
             for (const file of listFiles(root, ['.html'])) {
-                names.add(file);
+                const name = file.slice(0, -'.html'.length).split('/').join('.');
+                if (!names.has(name)) {
+                    names.set(
+                        name,
+                        path.relative(project.base, path.join(root, file)).split(path.sep).join('/')
+                    );
+                }
             }
         }
     }
-    return [...names];
+    return names;
 }
+
+// ---------------------------------------------------------------------------
 
 export function getCompletions(
     doc: TextDocument,
@@ -169,7 +189,7 @@ export function getCompletions(
     );
     const context = getArgContext(linePrefix, textBefore);
 
-    if (/pb-|@(include|extends|component)/.test(linePrefix)) {
+    if (/pb-|@(include|extends|component|url|static)/.test(linePrefix)) {
         log(
             `[completion] "...${linePrefix.slice(-30)}" -> ` +
                 (context ? `${context.kind}, typed "${context.typed}"` : 'no context') +
@@ -181,7 +201,7 @@ export function getCompletions(
         return [];
     }
 
-    // Replace everything typed so far so dots and slashes filter correctly
+    // Replace everything typed so far so dots, slashes and colons filter correctly
     const replaced = context.typed.length + (context.bare ? 'pb-'.length : 0);
     const range = Range.create(
         position.line,
@@ -190,41 +210,66 @@ export function getCompletions(
         position.character
     );
 
-    if (context.kind === 'template') {
-        const items = templateNames(projects).map((name) => ({
-            label: name,
-            kind: CompletionItemKind.File,
-            detail: 'Template',
-            filterText: name,
-            textEdit: TextEdit.replace(range, name),
-        }));
-        log(`[completion] ${items.length} template(s)`);
-        return items;
+    let items: CompletionItem[];
+
+    switch (context.kind) {
+        case 'template':
+            items = [...templateNames(projects)].map(([name, file]) => ({
+                label: name,
+                kind: CompletionItemKind.File,
+                detail: `Template · ${file}`,
+                filterText: name,
+                textEdit: TextEdit.replace(range, name),
+            }));
+            break;
+
+        case 'url':
+            items = findUrlNames(projects).map((u) => ({
+                label: u.name,
+                kind: CompletionItemKind.Reference,
+                detail: `URL name · ${u.file}`,
+                filterText: u.name,
+                textEdit: TextEdit.replace(range, u.name),
+            }));
+            break;
+
+        case 'static':
+            items = findStaticFiles(projects).map((f) => ({
+                label: f.name,
+                kind: CompletionItemKind.File,
+                detail: `Static file · ${f.file}`,
+                filterText: f.name,
+                textEdit: TextEdit.replace(range, f.name),
+            }));
+            break;
+
+        case 'component':
+            items = componentNames(projects, log).map((c): CompletionItem => {
+                const base: CompletionItem = {
+                    label: c.name,
+                    kind: CompletionItemKind.File,
+                    detail: `${c.detail} · ${c.file}`,
+                    sortText: `${c.rank}${c.name}`,
+                    filterText: c.name,
+                    textEdit: TextEdit.replace(range, c.name),
+                };
+                if (!context.bare) {
+                    return base;
+                }
+
+                // Typed "pb-" without "<": complete the whole tag, cursor before "/>"
+                const escaped = c.name.replace(/[\\$}]/g, '\\$&');
+                return {
+                    ...base,
+                    label: `pb-${c.name}`,
+                    filterText: `pb-${c.name}`,
+                    insertTextFormat: InsertTextFormat.Snippet,
+                    textEdit: TextEdit.replace(range, `<pb-${escaped} $0/>`),
+                };
+            });
+            break;
     }
 
-    const items = componentNames(projects, log).map((c): CompletionItem => {
-        const base: CompletionItem = {
-            label: c.name,
-            kind: CompletionItemKind.File,
-            detail: `${c.detail} · ${c.file}`,
-            sortText: `${c.rank}${c.name}`,
-            filterText: c.name,
-            textEdit: TextEdit.replace(range, c.name),
-        };
-        if (!context.bare) {
-            return base;
-        }
-
-        // Typed "pb-" without "<": complete the whole tag, cursor before "/>"
-        const escaped = c.name.replace(/[\\$}]/g, '\\$&');
-        return {
-            ...base,
-            label: `pb-${c.name}`,
-            filterText: `pb-${c.name}`,
-            insertTextFormat: InsertTextFormat.Snippet,
-            textEdit: TextEdit.replace(range, `<pb-${escaped} $0/>`),
-        };
-    });
-    log(`[completion] ${items.length} component(s)`);
+    log(`[completion] ${items.length} ${context.kind} item(s)`);
     return items;
 }

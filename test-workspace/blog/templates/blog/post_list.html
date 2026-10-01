@@ -1,0 +1,11 @@
+@extends("layouts.base")
+
+{# Adjust the section/block directives to match your layouts/base.html #}
+<link rel="stylesheet" href="@static('blog/css/blog.css')">
+<script src="@static('blog/js/blog.js')"></script>
+
+<h1>Posts</h1>
+@for(post in posts)
+    <pb-post_card />
+    <a href="@url('blog:post_detail', pk=post.pk)">{{ post.title }}</a>
+@endfor

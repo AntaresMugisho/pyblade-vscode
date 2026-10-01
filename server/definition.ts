@@ -46,7 +46,8 @@ export function resolveComponent(projects: Project[], name: string): string | un
 
 /**
  * Resolves a template name (as written in @include / @extends) to a file.
- * Tries the name as written, then with ".html" added, then with dots as folders.
+ * Dot notation comes first (layouts.base -> layouts/base.html); the name as
+ * written, with or without ".html", is kept as a fallback.
  */
 export function resolveTemplate(projects: Project[], name: string): string | undefined {
     const clean = name.replace(/\\/g, '/').replace(/^\/+/, '');
@@ -54,7 +55,7 @@ export function resolveTemplate(projects: Project[], name: string): string | und
         return undefined;
     }
 
-    const candidates = [...new Set([clean, `${clean}.html`, `${clean.replace(/\./g, '/')}.html`])];
+    const candidates = [...new Set([`${clean.replace(/\./g, '/')}.html`, clean, `${clean}.html`])];
 
     for (const candidate of candidates) {
         for (const project of projects) {

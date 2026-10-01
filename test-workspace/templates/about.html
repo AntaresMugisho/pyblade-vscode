@@ -1,0 +1,14 @@
+@extends("layouts.base")
+
+@url('home')
+
+@block('main')
+    <h1>About</h1>
+    <link rel="stylesheet" href="@static('css/style.css')">
+
+    <a href="@url('about)">Home</a>
+
+    @include("partials.footer")
+@endblock
+
+@static("js/app.js")

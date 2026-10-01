@@ -1,0 +1,7 @@
+@extends("layouts.base")
+
+{# Adjust the section/block directives to match your layouts/base.html #}
+<h1>{{ post.title }}</h1>
+<a href="@url('blog:post_edit', pk=post.pk)">Edit</a>
+<a href="@url('blog:post_comments', slug=post.slug)">Comments</a>
+@include("partials.footer")

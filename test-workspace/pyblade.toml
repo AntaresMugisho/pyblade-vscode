@@ -9,7 +9,7 @@ css_framework_version = "4"
 
 [paths]
 root = "test-workspace"
-# settings = "core/settings.py"
+settings = "config/settings.py"
 
 [i18n]
 directory = "i18n"

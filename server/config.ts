@@ -5,6 +5,8 @@ export interface PybladeConfig {
     templates: string;
     components: string;
     i18n: string;
+    /** [paths] settings: Django settings file/module, relative to the project root */
+    settings?: string;
 }
 
 export interface Project {
@@ -26,6 +28,14 @@ const SKIP_DIRS = new Set([
 
 function skipDir(name: string): boolean {
     return name.startsWith('.') || SKIP_DIRS.has(name);
+}
+
+function isFile(p: string): boolean {
+    try {
+        return fs.statSync(p).isFile();
+    } catch {
+        return false;
+    }
 }
 
 function isDir(p: string): boolean {
@@ -103,6 +113,7 @@ export function loadConfig(tomlPath: string): PybladeConfig {
         templates: toml['paths']?.['templates'] ?? DEFAULT_CONFIG.templates,
         components: toml['paths']?.['components'] ?? DEFAULT_CONFIG.components,
         i18n: toml['i18n']?.['directory'] ?? DEFAULT_CONFIG.i18n,
+        settings: toml['paths']?.['settings'],
     };
 }
 
@@ -122,7 +133,7 @@ function listDirs(dir: string): string[] {
 }
 
 /** Breadth-first walk of directories, `start` being depth 0. */
-function walkDirs(start: string, maxDepth: number, visit: (dir: string) => void): void {
+export function walkDirs(start: string, maxDepth: number, visit: (dir: string) => void): void {
     let level = [start];
     for (let depth = 0; depth <= maxDepth && level.length > 0; depth++) {
         const next: string[] = [];
@@ -169,8 +180,11 @@ export function findRoots(project: Project, relPath: string): string[] {
     return roots;
 }
 
-/** Lists files under `root` with one of `extensions`, as "/"-separated relative paths. */
-export function listFiles(root: string, extensions: string[]): string[] {
+/**
+ * Lists files under `root` as "/"-separated relative paths. Only files with one
+ * of `extensions` are kept (all files when omitted), up to `limit` results.
+ */
+export function listFiles(root: string, extensions?: string[], limit = 5000): string[] {
     const results: string[] = [];
     const stack: string[] = [''];
 
@@ -189,10 +203,25 @@ export function listFiles(root: string, extensions: string[]): string[] {
                 if (!skipDir(entry.name)) {
                     stack.push(childRel);
                 }
-            } else if (extensions.includes(path.extname(entry.name))) {
+            } else if (!extensions || extensions.includes(path.extname(entry.name))) {
                 results.push(childRel);
+                if (results.length >= limit) {
+                    return results;
+                }
             }
         }
     }
     return results;
+}
+
+/** Finds files called `filename` in the project, up to 3 levels below its base. */
+export function findNamedFiles(project: Project, filename: string): string[] {
+    const files: string[] = [];
+    walkDirs(project.base, 3, (dir) => {
+        const candidate = path.join(dir, filename);
+        if (isFile(candidate)) {
+            files.push(candidate);
+        }
+    });
+    return files;
 }
