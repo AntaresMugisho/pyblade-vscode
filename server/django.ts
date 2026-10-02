@@ -276,19 +276,25 @@ export function findStaticFiles(projects: Project[]): StaticFile[] {
     return [...found.values()];
 }
 
+export function staticRootsOf(projects: Project[]): string[] {
+    return projects.flatMap(findStaticRoots);
+}
+
 /** Finds the file behind a @static('...') name, trying the static folders in priority order. */
-export function resolveStaticFile(projects: Project[], name: string): string | undefined {
+export function resolveStaticFile(
+    projects: Project[],
+    name: string,
+    roots: string[] = staticRootsOf(projects)
+): string | undefined {
     const clean = name.replace(/\\/g, '/').replace(/^\/+/, '');
     if (!clean || clean.split('/').includes('..')) {
         return undefined;
     }
 
-    for (const project of projects) {
-        for (const root of findStaticRoots(project)) {
-            const file = path.join(root, clean);
-            if (isFile(file)) {
-                return file;
-            }
+    for (const root of roots) {
+        const file = path.join(root, clean);
+        if (isFile(file)) {
+            return file;
         }
     }
     return undefined;

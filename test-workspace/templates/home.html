@@ -99,10 +99,6 @@
 
 
 {# Conditional classes and styles #}
-
-@class("list-item", "favorite"=fruit.is_favorite)
-@style("background-color:#000", "color: red"=not fruit.is_favorite)
-
 <li @class("list-item", "favorite"=fruit.is_favorite)>{{ fruit.name }}</li>
 
 <li @style("background-color:#000", "color: red"=not fruit.is_favorite)>{{ fruit.name }}</li>
@@ -155,7 +151,6 @@
 @ratio(x, y, "100")
 @widthratio(x, y, z)
 
-@cycle('bg-gray-100', 'bg-white')
 <tr class="@cycle('bg-gray-100', 'bg-white')">
 
 @if (loop.last)
@@ -278,26 +273,14 @@
 
 @include("layouts/app.html")
 
-@extends("layouts.base")
-
 @component('app.button')
 
 @component('nav.menu')
 
-@include("antares.base")
-
-<pb-app.buton />
+<pb-app.button />
 
 <pb-bookmark />
 
 @component("test")
 
-
-<pb-test />
-
-@url("app:index")
-
-@if(False)
-    <p></p>
-@else
-    <p></p>
+<pb-card />

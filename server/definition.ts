@@ -14,12 +14,25 @@ function isFile(p: string): boolean {
     }
 }
 
+export function componentRootsOf(projects: Project[]): string[] {
+    return projects.flatMap((p) => findRoots(p, p.config.components));
+}
+
+export function templateRootsOf(projects: Project[]): string[] {
+    return projects.flatMap((p) => findRoots(p, p.config.templates));
+}
+
 /**
  * Resolves a component name to a file, in this order:
  *   nav.menu -> nav/menu.py, nav/menu/menu.py (live), nav/menu.html
  * Dots are folder separators. Live and Python components both land on the .py file.
+ * `roots` can be passed in to avoid rescanning the disk for every name.
  */
-export function resolveComponent(projects: Project[], name: string): string | undefined {
+export function resolveComponent(
+    projects: Project[],
+    name: string,
+    roots: string[] = componentRootsOf(projects)
+): string | undefined {
     if (name.includes('/') || name.includes('\\')) {
         return undefined;
     }
@@ -33,12 +46,10 @@ export function resolveComponent(projects: Project[], name: string): string | un
     const candidates = [`${rel}.py`, `${rel}/${last}.py`, `${rel}.html`];
 
     for (const candidate of candidates) {
-        for (const project of projects) {
-            for (const root of findRoots(project, project.config.components)) {
-                const file = path.join(root, candidate);
-                if (isFile(file)) {
-                    return file;
-                }
+        for (const root of roots) {
+            const file = path.join(root, candidate);
+            if (isFile(file)) {
+                return file;
             }
         }
     }
@@ -50,7 +61,11 @@ export function resolveComponent(projects: Project[], name: string): string | un
  * Dot notation comes first (layouts.base -> layouts/base.html); the name as
  * written, with or without ".html", is kept as a fallback.
  */
-export function resolveTemplate(projects: Project[], name: string): string | undefined {
+export function resolveTemplate(
+    projects: Project[],
+    name: string,
+    roots: string[] = templateRootsOf(projects)
+): string | undefined {
     const clean = name.replace(/\\/g, '/').replace(/^\/+/, '');
     if (!clean || clean.split('/').includes('..')) {
         return undefined;
@@ -59,12 +74,10 @@ export function resolveTemplate(projects: Project[], name: string): string | und
     const candidates = [...new Set([`${clean.replace(/\./g, '/')}.html`, clean, `${clean}.html`])];
 
     for (const candidate of candidates) {
-        for (const project of projects) {
-            for (const root of findRoots(project, project.config.templates)) {
-                const file = path.join(root, candidate);
-                if (isFile(file)) {
-                    return file;
-                }
+        for (const root of roots) {
+            const file = path.join(root, candidate);
+            if (isFile(file)) {
+                return file;
             }
         }
     }

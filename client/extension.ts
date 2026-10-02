@@ -41,7 +41,9 @@ async function startClient(context: vscode.ExtensionContext): Promise<void> {
     const clientOptions: LanguageClientOptions = {
         documentSelector: [{ scheme: 'file', language: 'pyblade' }],
         synchronize: {
-            fileEvents: vscode.workspace.createFileSystemWatcher('**/{pyblade.toml,*.html}'),
+            fileEvents: vscode.workspace.createFileSystemWatcher(
+                '**/*.{toml,html,py,css,js,svg,png,jpg,jpeg,gif,webp,ico,woff,woff2}'
+            ),
         },
     };
 

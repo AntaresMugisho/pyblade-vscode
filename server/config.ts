@@ -26,6 +26,18 @@ const SKIP_DIRS = new Set([
     'node_modules', 'venv', 'env', 'site-packages', '__pycache__', 'dist', 'out', 'build',
 ]);
 
+/**
+ * Folders we look *for* (templates, components, static...) or that are big and
+ * never contain apps. They are checked for existence from their parent, but the
+ * directory search does not descend into them (listFiles still can).
+ */
+const PRUNE_DIRS = new Set([
+    'static', 'staticfiles', 'media', 'templates', 'components', 'locale', 'migrations',
+]);
+
+/** How many levels below the project base we look for apps (templates/, components/, urls.py...). */
+const SEARCH_DEPTH = 6;
+
 function skipDir(name: string): boolean {
     return name.startsWith('.') || SKIP_DIRS.has(name);
 }
@@ -125,7 +137,7 @@ function listDirs(dir: string): string[] {
     try {
         return fs
             .readdirSync(dir, { withFileTypes: true })
-            .filter((e) => e.isDirectory() && !skipDir(e.name))
+            .filter((e) => e.isDirectory() && !skipDir(e.name) && !PRUNE_DIRS.has(e.name))
             .map((e) => path.join(dir, e.name));
     } catch {
         return [];
@@ -164,19 +176,41 @@ export function discoverProjects(workspaceRoots: string[]): Project[] {
     return projects;
 }
 
+// Directory index: every candidate app folder under a project base, cached for a
+// moment because one diagnostics run asks for several kinds of folders.
+const dirIndexCache = new Map<string, { time: number; dirs: string[] }>();
+
+/** Forget cached directory listings (call when files or folders appear or disappear). */
+export function invalidateDirIndex(): void {
+    dirIndexCache.clear();
+}
+
+function dirIndex(base: string): string[] {
+    const cached = dirIndexCache.get(base);
+    if (cached && Date.now() - cached.time < 1500) {
+        return cached.dirs;
+    }
+    const dirs: string[] = [];
+    walkDirs(base, SEARCH_DEPTH, (dir) => {
+        dirs.push(dir);
+    });
+    dirIndexCache.set(base, { time: Date.now(), dirs });
+    return dirs;
+}
+
 /**
  * Finds every folder named `relPath` (e.g. "templates") in the project:
  * directly under the project base, and inside app folders (Django layout,
- * up to 3 levels down).
+ * up to 6 levels down).
  */
 export function findRoots(project: Project, relPath: string): string[] {
     const roots: string[] = [];
-    walkDirs(project.base, 3, (dir) => {
+    for (const dir of dirIndex(project.base)) {
         const candidate = path.join(dir, relPath);
         if (isDir(candidate)) {
             roots.push(candidate);
         }
-    });
+    }
     return roots;
 }
 
@@ -214,14 +248,14 @@ export function listFiles(root: string, extensions?: string[], limit = 5000): st
     return results;
 }
 
-/** Finds files called `filename` in the project, up to 3 levels below its base. */
+/** Finds files called `filename` in the project, up to 6 levels below its base. */
 export function findNamedFiles(project: Project, filename: string): string[] {
     const files: string[] = [];
-    walkDirs(project.base, 3, (dir) => {
+    for (const dir of dirIndex(project.base)) {
         const candidate = path.join(dir, filename);
         if (isFile(candidate)) {
             files.push(candidate);
         }
-    });
+    }
     return files;
 }

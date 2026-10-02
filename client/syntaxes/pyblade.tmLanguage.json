@@ -1,89 +1,118 @@
 {
   "name": "PyBlade",
   "scopeName": "source.pyblade",
-  "repository": {}, 
-  "fileTypes": ["html", "pyblade"],
-    "patterns":[
-
-      {
-        "name": "comment.block.pyblade",
-        "begin": "\\{#",
-        "end": "#\\}"
-      },
-      {
-        "name": "comment.block.pyblade",
-        "begin": "@comment",
-        "end": "@endcomment"
-      },
-  
-      {
-        "begin": "(\\{\\{|\\{!!)",
-        "end": "(\\}\\}|!!\\})",
-        "contentName": "source.python",
-        "patterns":[
-          {"include": "source.python"}
-        ]
-      },
-  
-      {
-        "begin": "@(if|elif|for|error|with|unless|match|switch|case|ifchanged|active)\\s*\\(",
-        "end": "\\)",
-        "captures":{
-          "0":{"name":"keyword.control.pyblade"}
+  "fileTypes": [
+    "html",
+    "pyblade"
+  ],
+  "injections": {
+    "L:source.pyblade meta.tag": {
+      "patterns": [
+        {
+          "include": "#interpolation"
         },
-        "contentName": "source.python",
-        "patterns": [
-          {
-            "include": "source.python"
-          }
-        ]
-      },
-  
-      {
-        "begin": "@(extends|yield|section|block|include|push|stack|slot|component)\\s*\\(",
-        "end": "\\)",
-        "captures":{
-          "0":{"name":"keyword.control.pyblade"}
+        {
+          "include": "#directives"
+        }
+      ]
+    }
+  },
+  "patterns": [
+    {
+      "name": "comment.block.pyblade",
+      "begin": "\\{#",
+      "end": "#\\}"
+    },
+    {
+      "name": "comment.block.pyblade",
+      "begin": "@comment",
+      "end": "@endcomment"
+    },
+    {
+      "include": "#interpolation"
+    },
+    {
+      "include": "#directives"
+    },
+    {
+      "include": "text.html.basic"
+    }
+  ],
+  "repository": {
+    "interpolation": {
+      "begin": "(\\{\\{|\\{!!)",
+      "end": "(\\}\\}|!!\\})",
+      "contentName": "source.python",
+      "patterns": [
+        {
+          "include": "source.python"
+        }
+      ]
+    },
+    "directives": {
+      "patterns": [
+        {
+          "begin": "@(if|elif|for|error|with|unless|match|switch|case|ifchanged|active)\\s*\\(",
+          "end": "\\)",
+          "captures": {
+            "0": {
+              "name": "keyword.control.pyblade"
+            }
+          },
+          "contentName": "source.python",
+          "patterns": [
+            {
+              "include": "source.python"
+            }
+          ]
         },
-        "patterns": [
-          {
-            "name": "string.quoted.single.pyblade",
-            "match": "'[^']*'"
+        {
+          "begin": "@(extends|yield|section|block|include|push|stack|slot|component)\\s*\\(",
+          "end": "\\)",
+          "captures": {
+            "0": {
+              "name": "keyword.control.pyblade"
+            }
           },
-          {
-            "name": "string.quoted.double.pyblade",
-            "match": "\"[^\"]*\""
-          }
-        ]
-      },
-      {
-        "begin": "@(url|lorem|languages|lang|widthratio|ratio|static|translate|trans|class|props|style|field|break|continue|checked|selected|required|autofocus|multiple|readonly|cycle|resetcycle|firstof|regroup|now|querystring|get_static_prefix|get_media_prefix|gsp|gmp)\\s*\\(",
-        "end": "\\)",
-        "captures":{
-          "0": {"name": "support.function.pyblade"}
+          "patterns": [
+            {
+              "name": "string.quoted.single.pyblade",
+              "match": "'[^']*'"
+            },
+            {
+              "name": "string.quoted.double.pyblade",
+              "match": "\"[^\"]*\""
+            }
+          ]
         },
-        "contentName": "source.python",
-        "patterns": [
-          {
-            "include": "source.python"
+        {
+          "begin": "@(url|lorem|languages|lang|widthratio|ratio|static|translate|trans|class|props|style|field|break|continue|checked|selected|required|autofocus|multiple|readonly|cycle|resetcycle|firstof|regroup|now|querystring|get_static_prefix|get_media_prefix|gsp|gmp)\\s*\\(",
+          "end": "\\)",
+          "captures": {
+            "0": {
+              "name": "support.function.pyblade"
+            }
           },
-          {
-            "name": "string.quoted.single.pyblade",
-            "match": "'[^']*'"
-          },
-          {
-            "name": "string.quoted.double.pyblade",
-            "match": "\"[^\"]*\""
-          }
-        ]
-      },
-  
-      {
-        "name": "keyword.control.pyblade",
-        "match": "@(ifchanged|endifchanged|if|elif|else|lorem|debug|languages|lang|unless|match|switch|case|default|for|empty|break|continue|auth|guest|anonymous|csrf|field|class|props|required|selected|checked|autofocus|readonly|multiple|active|static|extends|yield|section|blocktranslate|endblocktranslate|plural|blocktrans|endblocktrans|block|endblock|include|endif|endfor|endswitch|endauth|endguest|endanonymous|enderror|endactive|endsection|stack|endstack|push|endpush|script|endscript|pbstyles|pbscripts|parent|verbatim|endverbatim|spaceless|endspaceless|endunless|endmatch|with|endwith|now|get_static_prefix|get_media_prefix|gsp|gmp|slot|endslot|component|endcomponent)\\b"
-      }, 
-
-      {"include": "text.html.basic" }
-      
-    ]
+          "contentName": "source.python",
+          "patterns": [
+            {
+              "include": "source.python"
+            },
+            {
+              "name": "string.quoted.single.pyblade",
+              "match": "'[^']*'"
+            },
+            {
+              "name": "string.quoted.double.pyblade",
+              "match": "\"[^\"]*\""
+            }
+          ]
+        },
+        {
+          "name": "keyword.control.pyblade",
+          "match": "@(ifchanged|endifchanged|if|elif|else|lorem|debug|languages|lang|unless|match|switch|case|default|for|empty|break|continue|auth|guest|anonymous|csrf|field|class|props|required|selected|checked|autofocus|readonly|multiple|active|static|extends|yield|section|blocktranslate|endblocktranslate|plural|blocktrans|endblocktrans|block|endblock|include|endif|endfor|endswitch|endauth|endguest|endanonymous|enderror|endactive|endsection|stack|endstack|push|endpush|script|endscript|pbstyles|pbscripts|parent|verbatim|endverbatim|spaceless|endspaceless|endunless|endmatch|with|endwith|now|get_static_prefix|get_media_prefix|gsp|gmp|slot|endslot|component|endcomponent)\\b"
+        }
+      ]
+    }
+  }
 }

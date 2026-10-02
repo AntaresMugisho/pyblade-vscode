@@ -11,7 +11,6 @@ export interface DirectiveDef {
 
 type DirectiveEntry = DirectiveDef | { aliasOf: string; end?: string };
 
-// DRAFT descriptions: review against real PyBlade behaviour. "?" = my guess.
 const ENTRIES: Record<string, DirectiveEntry> = {
     // Control flow
     if: { description: 'Renders its content when the Python expression is true.', args: 'required', end: 'endif' },
@@ -19,9 +18,9 @@ const ENTRIES: Record<string, DirectiveEntry> = {
     else: { description: 'Fallback branch of a conditional block.', args: 'none' },
     for: { description: 'Loops over an iterable (e.g. `@for(item in items)`).', args: 'required', end: 'endfor' },
     empty: { description: 'Branch of a `@for` loop rendered when the iterable is empty.', args: 'none' },
-    unless: { description: 'Renders its content when the expression is false.', args: 'required', end: 'endunless' }, // ?
-    match: { description: 'Starts a match block compared against `@case` branches.', args: 'required', end: 'endmatch' }, // ?
-    switch: { description: 'Starts a switch block compared against `@case` branches.', args: 'required', end: 'endswitch' }, // ?
+    unless: { description: 'Renders its content when the expression is False.', args: 'required', end: 'endunless' },
+    match: { description: 'Starts a match block compared against `@case` branches.', args: 'required', end: 'endmatch' },
+    switch: { description: 'Starts a switch block compared against `@case` branches.', args: 'required', end: 'endswitch' },
     case: { description: 'A branch inside `@switch` / `@match`.', args: 'required' },
     default: { description: 'Fallback branch inside `@switch` / `@match`.', args: 'none' },
     with: { description: 'Binds local variables for the enclosed content.', args: 'required', end: 'endwith' },
@@ -35,8 +34,8 @@ const ENTRIES: Record<string, DirectiveEntry> = {
     auth: { description: 'Renders its content for authenticated users.', args: 'none', end: 'endauth' },
     guest: { description: 'Renders its content for unauthenticated users.', args: 'none', end: 'endguest' },
     anonymous: { description: 'Renders its content for anonymous users.', args: 'none', end: 'endanonymous' },
-    error: { description: 'Renders its content when the given field has an error.', args: 'required', end: 'enderror' }, // ?
-    active: { description: 'Outputs the content inside if the current URL is the active one.', args: 'required', end: 'endactive' }, // ?
+    error: { description: 'Renders its content when the given form field has an error.', args: 'required', end: 'enderror' },
+    active: { description: 'Outputs the content inside if the current URL is the active one.', args: 'required', end: 'endactive' },
 
     // Layout and composition
     extends: { description: "Declares the parent template (e.g. `@extends('layouts/base')`).", args: 'required' },
@@ -46,27 +45,31 @@ const ENTRIES: Record<string, DirectiveEntry> = {
     yield: { description: 'Outputs the content of a named section.', args: 'required' },
     include: { description: "Includes another template (e.g. `@include('partials/nav')`).", args: 'required', params: ['string'] },
     push: { description: 'Pushes content onto a named stack.', args: 'required', end: 'endpush' },
-    stack: { description: 'Outputs a named stack?.', args: 'required', end: 'endstack' }, // ?
+    stack: { description: 'Outputs a named stack.', args: 'required', end: 'endstack' },
     component: { description: "Renders a component (e.g. `@component('nav/menu')`).", args: 'required', end: 'endcomponent' },
     slot: { description: 'Defines a named slot passed to a component.', args: 'required', end: 'endslot' },
-    script: { description: 'Places extra live comonents scripts at the same place in a template.', args: 'none', end: 'endscript' }, // ?
-    pbstyles: { description: 'Outputs the default PyBlade styles.', args: 'none' }, // ?
-    pbscripts: { description: 'Outputs the default PyBlade scripts.', args: 'none' }, // ?
+    script: { description: 'Places extra live comonents scripts at the same place in a template.', args: 'none', end: 'endscript' },
+    pbstyles: { description: 'Outputs the default PyBlade styles.', args: 'none' }, 
+    pbscripts: { description: 'Outputs the default PyBlade scripts.', args: 'none' },
     comment: { description: 'Block comment, not rendered in the output.', args: 'none', end: 'endcomment' },
     verbatim: { description: 'Outputs its content without processing directives.', args: 'none', end: 'endverbatim' },
     spaceless: { description: 'Removes whitespace between HTML tags in its content.', args: 'none', end: 'endspaceless' },
-
+    lorem: { description: 'Generates placeholder text.', args: 'optional' },
+    debug: {description: 'Render the active context when DEBUG is True', args: 'none'},
+        
     // Helpers
     url: { description: "Accepts a string: the relative or absolute URL (e.g., `@url('home')`).", args: 'required', params: ['string'] },
     static: { description: "Accepts a string: the path to the static resource (e.g., `@static('css/style.css')`).", args: 'required', params: ['string'] },
-    class: { description: "Accepts a dictionary or string: dynamic class generation (e.g., `@class({'active': isActive})`).", args: 'required', params: ['object'] },
-    style: { description: 'Dynamic style attribute?.', args: 'required' }, // ?
-    props: { description: 'Component props.', args: 'optional' }, // ?
-    field: { description: "Form field's widget modifier", args: 'optional' }, // ?
+    class: { description: "Conditional classes", args: 'required', params: ['object'] },
+    style: { description: 'Conditional styles.', args: 'required' },
+    props: { description: 'In a Component, defines default props.', args: 'optional' },
+    field: { description: "Form field's widget modifier", args: 'optional' },
     csrf: { description: 'Outputs the CSRF token field.', args: 'none' },
     now: { description: 'Outputs the current date/time with the given format.', args: 'required' },
     querystring: { description: 'Builds a query string from the given parameters.', args: 'optional' },
     firstof: { description: 'Outputs the first argument that is not empty.', args: 'required' },
+    ratio: { description: 'Outputs the ratio of two numbers at a given scale.', args: 'required' },
+    widthratio: { aliasOf: 'ratio' },
     regroup: { description: 'Regroups a list of objects by a common attribute.', args: 'required' },
     get_static_prefix: { description: 'Outputs the static files URL prefix.', args: 'none' },
     get_media_prefix: { description: 'Outputs the media files URL prefix.', args: 'none' },
@@ -90,8 +93,8 @@ const ENTRIES: Record<string, DirectiveEntry> = {
     blocktranslate: { description: 'Translates a block of text that may contain variables.', args: 'optional', end: 'endblocktranslate' },
     blocktrans: { aliasOf: 'blocktranslate', end: 'endblocktrans' },
     plural: { description: 'Plural form inside a `@blocktranslate` block.', args: 'optional' },
-    lang: { description: 'Current language', args: 'optional' }, // ?
-    languages: { description: 'List of languages', args: 'optional' }, // ?
+    lang: { description: 'Current language', args: 'optional' },
+    languages: { description: 'List of languages', args: 'optional' },
 };
 
 export function getDirective(name: string): DirectiveDef | undefined {
@@ -115,6 +118,8 @@ for (const name of Object.keys(ENTRIES)) {
         END_TAGS.set(end, name);
     }
 }
+
+export const DIRECTIVE_NAMES: string[] = [...Object.keys(ENTRIES), ...END_TAGS.keys()];
 
 export interface Directive {
     name: string;

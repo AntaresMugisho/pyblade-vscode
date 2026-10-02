@@ -1,3 +1,4 @@
+import * as path from 'path';
 import { Diagnostic, DiagnosticSeverity } from 'vscode-languageserver/node';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { Project } from './config';
@@ -8,6 +9,7 @@ import {
     findDirectives,
     getDirective,
 } from './directives';
+import { componentNames } from './completion';
 import { componentRootsOf, resolveComponent, resolveTemplate, templateRootsOf } from './definition';
 import { findUrlNames, resolveStaticFile, staticRootsOf } from './django';
 
@@ -20,10 +22,13 @@ const MAX_LENGTH = 1_000_000;
  * A stray closing tag (e.g. `@endsection` alone) is still reported.
  * Edit this list to match how PyBlade really works.
  */
-const SOFT_BLOCKS = new Set(['component', 'slot', 'section', 'push', 'script', 'active', 'stack', 'regroup', 'cycle', 'resetcycle', 'querystring', 'firstof', 'debug', 'now', 'translate', 'trans', 'u,rl', 'static', 'get_media_prefix', 'get_static_prefix', 'gmp', 'gesp', 'ratio', 'witdhratio', 'lang', 'languages', 'pbscripts', 'pbstyles', 'yield', 'props', 'style', 'class', 'required', 'selected', 'checked', 'multiple', 'autofocus', 'readonly', 'field']);
+const SOFT_BLOCKS = new Set(['component', 'slot', 'section', 'push', 'script', 'active', 'stack']);
+
+/** Component names handled by PyBlade itself (e.g. <pb-slot>): never reported as missing. */
+const BUILTIN_COMPONENTS = new Set(['slot']);
 
 /** Directives that only make sense inside another block (@if ... @else ... @endif). */
-const INTERMEDIATES = new Set(['else', 'elif', 'empty', 'case', 'default', 'plural', 'break', 'continue', 'parent']);
+const INTERMEDIATES = new Set(['else', 'elif', 'empty', 'case', 'default', 'plural']);
 
 /** Matches `("name"` right after a directive name; sticky so we never slice the text. */
 const FIRST_STRING = /\s*\(\s*(['"])([^'"\n]*)\1/y;
@@ -45,29 +50,42 @@ function levenshtein(a: string, b: string): number {
 }
 
 /**
- * Closest known directive, only when it is a plausible typo: short names must
- * differ by 1 character, longer ones by at most 2. This keeps CSS at-rules
- * (@media, @import) and framework attributes (@click) from being flagged.
+ * Closest candidate, only when it is a plausible typo: short names must differ
+ * by 1 character, longer ones by at most 2.
  */
-function closestDirective(name: string): string | undefined {
-    if (name.length < 4) {
+function closestOf(name: string, candidates: Iterable<string>, minLength: number): string | undefined {
+    if (name.length < minLength) {
         return undefined;
     }
     const max = name.length <= 5 ? 1 : 2;
 
     let best: string | undefined;
     let bestDistance = max + 1;
-    for (const known of DIRECTIVE_NAMES) {
-        if (Math.abs(known.length - name.length) > max) {
+    for (const candidate of candidates) {
+        if (candidate === name || Math.abs(candidate.length - name.length) > max) {
             continue;
         }
-        const distance = levenshtein(name, known);
+        const distance = levenshtein(name, candidate);
         if (distance < bestDistance) {
-            best = known;
+            best = candidate;
             bestDistance = distance;
         }
     }
     return best;
+}
+
+/** Closest known directive; keeps CSS at-rules (@media) and attributes (@click) from being flagged. */
+function closestDirective(name: string): string | undefined {
+    return closestOf(name, DIRECTIVE_NAMES, 4);
+}
+
+/** "shop/components, app/components" -- where we looked, relative to the project. */
+function describeRoots(projects: Project[], roots: string[]): string {
+    const shown = roots.slice(0, 4).map((root) => {
+        const project = projects.find((p) => root.startsWith(p.base));
+        return (project ? path.relative(project.base, root) : root).split(path.sep).join('/');
+    });
+    return shown.join(', ') + (roots.length > 4 ? `, ... (${roots.length} folders)` : '');
 }
 
 function once<T>(fn: () => T): () => T {
@@ -218,7 +236,7 @@ export function getDiagnostics(doc: TextDocument, projects: Project[]): Diagnost
                 d.nameEnd,
                 DiagnosticSeverity.Warning,
                 'misplaced-directive',
-                `@${d.name} is only valid inside a block such as @if, @for, @block, @section or @blocktranslate`
+                `@${d.name} is only valid inside a block such as @if or @for`
             );
         }
     }
@@ -291,6 +309,15 @@ export function getDiagnostics(doc: TextDocument, projects: Project[]): Diagnost
     const staticRoots = once(() => staticRootsOf(projects));
     const urlNames = once(() => new Set(findUrlNames(projects).map((u) => u.name)));
 
+    const missingComponent = (name: string): string => {
+        const known = componentNames(projects, () => {}).map((c) => c.name);
+        const suggestion = closestOf(name, known, 3);
+        return (
+            `Component "${name}" not found (searched: ${describeRoots(projects, componentRoots())})` +
+            (suggestion ? `. Did you mean "${suggestion}"?` : '')
+        );
+    };
+
     for (const d of directives) {
         if (inLiteral(d.nameStart)) {
             continue;
@@ -313,19 +340,23 @@ export function getDiagnostics(doc: TextDocument, projects: Project[]): Diagnost
                         arg.end,
                         DiagnosticSeverity.Warning,
                         'missing-template',
-                        `Template "${arg.name}" not found`
+                        `Template "${arg.name}" not found (searched: ${describeRoots(projects, templateRoots())})`
                     );
                 }
                 break;
 
             case 'component':
-                if (componentRoots().length > 0 && !resolveComponent(projects, arg.name, componentRoots())) {
+                if (
+                    !BUILTIN_COMPONENTS.has(arg.name) &&
+                    componentRoots().length > 0 &&
+                    !resolveComponent(projects, arg.name, componentRoots())
+                ) {
                     report(
                         arg.start,
                         arg.end,
                         DiagnosticSeverity.Warning,
                         'missing-component',
-                        `Component "${arg.name}" not found`
+                        missingComponent(arg.name)
                     );
                 }
                 break;
@@ -358,7 +389,7 @@ export function getDiagnostics(doc: TextDocument, projects: Project[]): Diagnost
                         arg.end,
                         DiagnosticSeverity.Warning,
                         'missing-static',
-                        `Static file "${arg.name}" not found`
+                        `Static file "${arg.name}" not found (searched: ${describeRoots(projects, staticRoots())})`
                     );
                 }
                 break;
@@ -369,7 +400,7 @@ export function getDiagnostics(doc: TextDocument, projects: Project[]): Diagnost
     for (const m of text.matchAll(/<pb-([\w.-]+)/g)) {
         const end = (m.index ?? 0) + m[0].length;
         const start = end - m[1].length;
-        if (inComment(start) || inLiteral(start)) {
+        if (inComment(start) || inLiteral(start) || BUILTIN_COMPONENTS.has(m[1])) {
             continue;
         }
         if (componentRoots().length > 0 && !resolveComponent(projects, m[1], componentRoots())) {
@@ -378,7 +409,7 @@ export function getDiagnostics(doc: TextDocument, projects: Project[]): Diagnost
                 end,
                 DiagnosticSeverity.Warning,
                 'missing-component',
-                `Component "${m[1]}" not found`
+                missingComponent(m[1])
             );
         }
     }

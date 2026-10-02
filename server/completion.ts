@@ -83,7 +83,7 @@ interface Found {
  *   nav.menu -> nav/menu.py (python), nav/menu/menu.py (live), nav/menu.html (UI)
  * Dots are folder separators; extensions are never part of the name.
  */
-function componentNames(projects: Project[], log: Log): Found[] {
+export function componentNames(projects: Project[], log: Log): Found[] {
     const found = new Map<string, Found>();
 
     for (const project of projects) {
@@ -117,7 +117,7 @@ function componentNames(projects: Project[], log: Log): Found[] {
                     }
                     name = segments.join('.');
                     rank = 2;
-                    detail = 'Component';
+                    detail = 'UI component';
                 } else if (
                     segments.length >= 2 &&
                     segments[segments.length - 1] === segments[segments.length - 2]
@@ -128,7 +128,7 @@ function componentNames(projects: Project[], log: Log): Found[] {
                 } else {
                     name = segments.join('.');
                     rank = 0;
-                    detail = 'Live component';
+                    detail = 'Python component';
                 }
 
                 const relFile = path

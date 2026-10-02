@@ -14,9 +14,10 @@ import { TextDocument } from 'vscode-languageserver-textdocument';
 import { fileURLToPath } from 'url';
 
 import { END_TAGS, findDirectives, getDirective } from './directives';
-import { discoverProjects, Project } from './config';
+import { discoverProjects, invalidateDirIndex, Project } from './config';
 import { getCompletions } from './completion';
 import { getDefinition } from './definition';
+import { getDiagnostics } from './diagnostics';
 
 const connection = createConnection(ProposedFeatures.all);
 const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
@@ -51,8 +52,38 @@ function logProjects(): void {
 }
 
 function reloadProjects(): void {
+    invalidateDirIndex();
     projects = discoverProjects(roots);
     logProjects();
+    revalidateAll();
+}
+
+// ---- Diagnostics: recomputed shortly after each edit, and for all open files when the project changes ----
+
+const pendingValidation = new Map<string, ReturnType<typeof setTimeout>>();
+
+function validate(doc: TextDocument): void {
+    connection.sendDiagnostics({ uri: doc.uri, diagnostics: getDiagnostics(doc, projects) });
+}
+
+function scheduleValidation(doc: TextDocument, delay = 300): void {
+    const existing = pendingValidation.get(doc.uri);
+    if (existing) {
+        clearTimeout(existing);
+    }
+    pendingValidation.set(
+        doc.uri,
+        setTimeout(() => {
+            pendingValidation.delete(doc.uri);
+            validate(doc);
+        }, delay)
+    );
+}
+
+function revalidateAll(): void {
+    for (const doc of documents.all()) {
+        scheduleValidation(doc, 500);
+    }
 }
 
 connection.onInitialize((params: InitializeParams): InitializeResult => {
@@ -101,7 +132,21 @@ connection.onInitialized(() => {
 connection.onDidChangeWatchedFiles((change) => {
     if (change.changes.some((c) => c.uri.endsWith('pyblade.toml'))) {
         reloadProjects();
+    } else {
+        invalidateDirIndex();
+        revalidateAll(); // a template, component, urls.py or static file appeared or disappeared
     }
+});
+
+documents.onDidChangeContent((event) => scheduleValidation(event.document));
+
+documents.onDidClose((event) => {
+    const pending = pendingValidation.get(event.document.uri);
+    if (pending) {
+        clearTimeout(pending);
+        pendingValidation.delete(event.document.uri);
+    }
+    connection.sendDiagnostics({ uri: event.document.uri, diagnostics: [] });
 });
 
 connection.onHover((params): Hover | null => {
