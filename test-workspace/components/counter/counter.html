@@ -2,6 +2,7 @@
     {# Live component content goes here #}
 
     @verbatim
+    <p>Verbatim: </p>
     <pre>
         <code>
             <p>{{ user.name }}</p>
@@ -11,6 +12,10 @@
         </code>
     </pre>
     @endverbatim
+
+    @persist("video-player")
+        <video src="https://www.youtube.com/watch?v=u2ah9tWTkmk&list=RD8560CAdA0Ys" controls></video>
+    @endpersist
 
     @push('scripts')
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

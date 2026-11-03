@@ -20,3 +20,4 @@ test-workspace/**
 bun.lock
 package-lock.json
 *.vsix
+graphify-out/

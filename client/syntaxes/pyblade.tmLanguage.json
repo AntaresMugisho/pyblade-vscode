@@ -67,7 +67,7 @@
           ]
         },
         {
-          "begin": "@(extends|yield|section|block|include|push|stack|slot|component)\\s*\\(",
+          "begin": "@(extends|yield|section|block|include|push|stack|slot|component|persist)\\s*\\(",
           "end": "\\)",
           "captures": {
             "0": {

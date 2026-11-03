@@ -1,288 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PyBlade Grammar</title>
+</head>
+<body>
+    @debug
 
-{# Comement #}
+    @lorem
 
-@comment
-    Long comment
-@endcomment
+    @lorem('b', 'p', 3)
 
-@debug
-@debug
-
-@lorem
-@lorem(b, p, 3)
-
-
-{# CONDITIONALS #}
-@if (status == 'active')
-    <p>Your account is active.</p>
-@elif (status == 'pending')
-    <p>Your account is pending approval.</p>
-@else
-    <p>Your account is inactive.</p>
-@endif
-
-
-@unless (user.is_admin)
-    <p>You do not have admin privileges.</p>
-@endunless
-
-
-{# Authentication directives #}
-@auth
-    <p>Welcome back, {{ user.name }}!</p>
-    <a href="/dashboard">Go to Dashboard</a>
-@else
-    <p>You must log in to access this section.</p>
-    <a href="/login">Log in here</a>
-@endauth
-
-@guest
-    <p>Welcome! Please <a href="/login">log in</a> or <a href="/register">sign up</a>.</p>
-@else
-    <p>Hello {{ user.name }}, you are already logged in.</p>
-@endguest
-
-@anonymous
-    <p>Welcome! Please <a href="/login">log in</a> or <a href="/register">sign up</a>.</p>
-@else
-    <p>Hello {{ user.name }}, you are already logged in.</p>
-@endanonymous
-
-{# Match/Switch cases #}
-@match(status)
-    @case('active')
+    @if (status == 'active')
         <p>Your account is active.</p>
-    @case('pending')
+    @elif (status == 'pending')
         <p>Your account is pending approval.</p>
-    @case('inactive')
+    @else
         <p>Your account is inactive.</p>
-    @default
-        <p>Status unknown.</p>
-@endmatch
+    @endif
 
-@switch(status)
-    @case('active')
-        <span>Active</span>
-    @case('pending')
-        <span>Pending</span>
-@endswitch
+    @auth
+        @unless (user.is_admin)
+            <p>You do not have admin privileges.</p>
+        @endunless
+    @endauth
+
+    {# Authentication directives #}
+    @auth
+        <p>Welcome back, {{ user.name }}!</p>
+        <a href="/dashboard">Go to Dashboard</a>
+    @else
+        <p>You must log in to access this section.</p>
+        <a href="/login">Log in here</a>
+    @endauth
+
+    @guest
+        <p>Welcome! Please <a href="/login">log in</a> or <a href="/register">sign up</a>.</p>
+    @else
+        <p>Hello {{ user.name }}, you are already logged in.</p>
+    @endguest
+
+    {# @anonymous
+        <p>Welcome! Please <a href="/login">log in</a> or <a href="/register">sign up</a>.</p>
+    @else
+        <p>Hello {{ user.name }}, you are already logged in.</p>
+    @endanonymous #}
+
+    {# Match/Switch cases #}
+    @match(status)
+        @case('active')
+            <p>Your account is active.</p>
+        @case('pending')
+            <p>Your account is pending approval.</p>
+        @case('inactive')
+            <p>Your account is inactive.</p>
+        @default
+            <p>Status unknown.</p>
+    @endmatch
+
+    @switch(status)
+        @case('active')
+            <span>Active</span>
+        @case('pending')
+            <span>Pending</span>
+    @endswitch
 
 
-{# Loops #}
-<ul id="articles">
-    @for(article in articles)
-        <li>{{ article.title }} <small>{{ article.author }}</small></li>
-    @empty
-        <p>Nothing to show !</p>
+    {# Loops #}
+    <ul id="articles">
+        @for(article in articles)
+            <li>{{ article.title }} <small>{{ article.author }}</small></li>
+        @empty
+            <p>Nothing to show !</p>
+        @endfor
+    </ul>
+
+    <ul>
+        @for (fruit in fruits)
+            @if (fruit == 'Banana')
+                @continue(False)
+            @endif
+            <li>{{ fruit }}</li>
+
+            @if (fruit == 'Date')
+                @break
+            @endif
+
+        @endfor
+    </ul>
+
+
+    {# Including partials #}
+    @include("header")
+
+
+    {# Conditional classes and styles #}
+    <hr>
+    @for (fruit in dict_fruits)
+        <li @class("list-item", "favorite"=fruit.is_favorite)>{{ fruit.name }}</li>
+        <li @style("background-color:#000", "color: red"=not fruit.is_favorite)>{{ fruit.name }}</li>
     @endfor
-</ul>
 
-<ul>
-    @for (fruit in fruits)
-        @if (fruit == 'Banana')
-            @continue
-            @continue(False)
-        @endif
-        <li>{{ fruit }}</li>
-
-        @if (fruit == 'Date')
-            @break
-            @break(False)
-        @endif
-
-    @endfor
-</ul>
-
-
-{# Including partials #}
-@include("header")
-
-
-{# Conditional classes and styles #}
-<li @class("list-item", "favorite"=fruit.is_favorite)>{{ fruit.name }}</li>
-
-<li @style("background-color:#000", "color: red"=not fruit.is_favorite)>{{ fruit.name }}</li>
-
-
-{# Forms #}
-<form novalidate method='post'>
-    @csrf
-    
-    <h1>Contact us</h1>
+    {# Forms #}
+    <hr>
+    <form novalidate method='post'>
+        @csrf
         
-    @required
-    @checked
-    @selected
-    @readonly
-    @autofocus
-    @multiple   
+        <h1>Contact us</h1>
+            
+        @required
+        @checked
+        @selected
+        @readonly
+        @autofocus
+        @multiple   
 
-    @required(3 > 2)
+        @required(3 > 2)
 
-    <div>
-        <label for="id_name">Name:</label>
-        @field(form.name, class="form-control" placeholder="Enter your name" required autofocus)
-        @error(form.name)
-            <small style="color:red;">{{ message }}</small>
-        @enderror
-    </div>
-    
-    <div>
-        <label for="email">Email:</label>
-        @field(form.email, id='email' class="form-control" placeholder="Enter you email")
-        @error(form.email)
-            <small style="color:red;">{{ message }}</small>
-        @enderror
-    </div>
+        <div>
+            <label for="id_name">Name:</label>
+            @field(form.name, class="form-control" placeholder="Enter your name" required autofocus)
+            @error(form.name)
+                <small style="color:red;">{{ message }}</small>
+            @enderror
+        </div>
 
-    <div>
-        <button type="submit">Send</button>
-    </div>
-</form>
+        <div>
+            <label for="email">Email:</label>
+            @field(form.email, id='email' class="form-control" placeholder="Enter you email")
+            @error(form.email)
+                <small style="color:red;">{{ message }}</small>
+            @enderror
+        </div>
 
+        <div>
+            <label for="email">Message:</label>
+            @field(form.message, id='message' class="form-control" placeholder="Enter you message")
+            @error(form.message)
+                <small style="color:red;">{{ message }}</small>
+            @enderror
+        </div>
 
-{# Working with data #}
-@with(full_name=customer.first_name + ' ' + customer.last_name)
-    <h3>Welcome again, {{ full_name }} !</h3>
-
-    <p>Hey {{ full_name }}, we have a surprise for you.</p>
-@endwith
-
-@ratio(x, y, "100")
-@widthratio(x, y, z)
-
-<tr class="@cycle('bg-gray-100', 'bg-white')">
-
-@if (loop.last)
-    @resetcycle(section_class)
-@endif
-
-@firstof(var1, var2, var3)
-
-@regroup(cities by country as countries)
-
-@ifchanged (date.date)
-    <strong>{{ date.date }}</strong>
-@endifchanged
-
-@now ("%B" as current_month)
-@now
-
-{# URLs #}
-@url("home")
-
-@active('dashboard')active@endactive
-<li class="@active('dashboard')active@endactive">
-
-@querystring(color=my_list)
-
-@static('images/hi.jpg')
-<img src="@static('images/hi.jpg')" alt="Hi!">
+        <div>
+            <button type="submit">Send</button>
+        </div>
+    </form>
 
 
-@get_static_prefix(as STATIC_PREFIX)
-@get_media_prefix(as STATIC_PREFIX)
+    {# Working with data #}
+    <hr>
+    @with(full_name=customer.first_name + ' ' + customer.last_name)
+        <h3>Welcome again, {{ full_name }} !</h3>
 
-@get_static_prefix
-@get_media_prefix
+        <p>Hey {{ full_name }}, we have a surprise for you.</p>
+    @endwith
 
-@gsp
-@gmp
+    <hr>
+    <p>
+    {{ x }} is @ratio(x, y, 100)% of {{ y }}
+    </p>
+    <p>
+    @widthratio(x, y, z)
+    </p>
 
-{# Translations #}
+    <hr>
+    @for ( i in range(5))
+        <p class="@cycle('bg-gray-100', 'bg-white' as section_class)">{{ i }} </p>
 
-@translate("This is the title" as the_title)
-@trans('Message')
+        @if (loop.last)
+            @resetcycle(section_class)
+        @endif
+    @endfor
 
-@blocktranslate(book_t=book.title, author_t=author.title() )
-    This is {{ book_t }} by {{ author_t }}.
-@endblocktranslate
+    <hr>
+    @firstof(var1, var2, var3, var4)
 
-@blocktrans(book_t=book.title, author_t=author.title() )
-    This is {{ book_t }} by {{ author_t }}.
-@endblocktrans
+    <hr>
+    @regroup(cities by country as countries)
+    <ul>
+    @for (country in countries)
+        <li>{{ country.grouper }}
+        <ul>
+            @for (city in country.list)
+            <li>{{ city.name }}: {{ city.population }}</li>
+            @endfor
+        </ul>
+        </li>
+    @endfor
+    </ul>
 
-@blocktranslate(amount=article.price, counter=i.length)
-    That will cost $ {{ amount }} per year.
-@plural
-    That will cost $ {{ amount }} per {{ counter }} years.
-@endblocktranslate
+    <hr>
+    <p>Conversation:</p>
+    @for (message in conv_messages)
+        @ifchanged (message.created_at.date)
+            <h3>{{ message.created_at.format("%B %d, %Y") }}</h3>
+        @endifchanged
 
-@lang()
-@lang
+        <div class="message">
+            <strong>{{ message.sender }}</strong>
+            <p>{{ message.content }}</p>
+            <small>{{ message.created_at.format("%H:%M") }}</small>
+        </div>
+    @endfor
+    <hr>
 
-@languages
-@languages()
-
-
-{# Components #}
-
-@slot("name")
-@endslot
-
-@component("card")
-@endcomponent
-
-<pb-card />
-<pb-alert>
-
-<pb-nav.menu>
-
-
-{# Template inheritence #}
-{# @extends("layout") #}
-
-@block('main')
-    @parent
-
-    <pb-slot name="title">Contact page</pb-slot>
-
-    <div>
-        <p>Main content</p>
-    </div>
-@endblock
-
-@section('footer')
-    <div></div>
-@endsection
+    @now ("%B" as current_month)
+    <p>{{ current_month }}</p>
 
 
-{# LIVE COMPONENTS #}
+    {# URLs #}
+    @url("home")
 
-{# Push & Stack #}
-@push('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-@endpush
+    @active('dashboard')active@endactive
+    <li class="@active('dashboard')active@endactive">
 
-@stack("scripts")
+    <p>
+    @querystring(color=sizes)
+    </p>
 
-{# Script #}
-@script
-    <script>
-        console.log("Hello world!")
-    </script>
-@endscript
+    <p>
+    @static('images/hi.jpg')
+    </p>
 
-{# PyBlade live styles and scripts #}
-@pbstyles
-@pbscripts
+    @get_static_prefix(as STATIC_PREFIX)
+    @get_media_prefix(as STATIC_PREFIX)
 
-<pb-counter />
+    <p>
+    @get_static_prefix
+    </p>
+    <p>
+    @get_media_prefix
+    </p>
 
-@include("layouts.app")
+    {# Translations #}
 
-@include("layouts/app.html")
+    @translate("This is the title" as the_title)
+    @trans('Message')
 
-@component('app.button')
+    @blocktranslate(book_t=book.title, author_t=author.title() )
+        This is {{ book_t }} by {{ author_t }}.
+    @endblocktranslate
 
-@component('nav.menu')
+    @blocktranslate(book_t=book.title, author_t=author.title() )
+        This is {{ book_t }} by {{ author_t }}.
+    @endblocktranslate
 
-<pb-app.button />
+    @blocktranslate(amount=article.price, counter=i.length)
+        That will cost $ {{ amount }} per year.
+    @plural
+        That will cost $ {{ amount }} per {{ counter }} years.
+    @endblocktranslate
 
-<pb-bookmark />
 
-@component("test")
+    <p>Lang: @lang </p>
 
-<pb-card />
+    <p>Languages: </p>
+    @languages(as langs)
+    @for(lang in langs)
+        <li>{{ lang }}</li>
+    @endfor
 
-<input @checked(user.ok) @required @readonly @selected @multiple @ens @inlcude >
+
+    {# Components #}
+
+    @slot("name")
+    @endslot
+
+    @component("card")
+
+    <pb-card />
+    <pb-alert />
+
+    <pb-nav.menu />
+    @component('nav.menu')
+
+
+
+    {# LIVE COMPONENTS #}
+
+    {# Push & Stack #}
+    @push('scripts')
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    @endpush
+
+    @stack("scripts")
+
+    {# Script #}
+    @script
+        <script>
+            console.log("Hello world!")
+        </script>
+    @endscript
+
+    {# PyBlade live styles and scripts #}
+    @pbstyles
+    @pbscripts
+
+    <pb-counter />
+
+    <pb-app.button />
+    @component('app.button')
+
+</body>
+</html>

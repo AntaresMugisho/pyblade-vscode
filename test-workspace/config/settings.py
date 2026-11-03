@@ -55,9 +55,10 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
             ],
         },
-
+    },
+    {
         "BACKEND": "pyblade.django.PyBladeEngine",
-        "NAME": 'pyblade',
+        "NAME": "pyblade",
         "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
@@ -68,10 +69,9 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
             ],
         },
-
     },
 ]
-
+ 
 WSGI_APPLICATION = "config.wsgi.application"
 
 

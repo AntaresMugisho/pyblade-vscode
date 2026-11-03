@@ -1,11 +1,23 @@
+{# Template inheritence #}
 @extends("layouts.base")
 
+<pb-slot name="title">About page</pb-slot>
 
-@block('main')
+@block("header")
     <h1>About</h1>
     <link rel="stylesheet" href="@static('css/style.css')">
-
-    <a href="@url('home')">Home</a>
-
-    @include("partials.footer")
+    <a href="@url('home')">Go Home</a>
 @endblock
+
+@block('main')
+    @parent
+
+
+    <div>
+        <p>Main content</p>
+    </div>
+@endblock
+
+@section('footer')
+    <div>Footer</div>
+@endsection
