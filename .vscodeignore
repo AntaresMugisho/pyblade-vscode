@@ -5,6 +5,12 @@
 .gitignore
 .github/**
 
+# Grammar submodule: only grammars/ and LICENSE ship
+client/grammars/.git
+client/grammars/.gitignore
+client/grammars/README.md
+client/grammars/samples/**
+
 # Sources and build config (only compiled output ships)
 client/**/*.ts
 server/**/*.ts

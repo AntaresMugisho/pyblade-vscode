@@ -1,0 +1,3 @@
+[submodule "client/grammars"]
+	path = client/grammars
+	url = https://github.com/AntaresMugisho/pyblade-language.git

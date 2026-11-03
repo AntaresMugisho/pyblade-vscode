@@ -51,7 +51,7 @@
       {
         "language": "pyblade",
         "scopeName": "source.pyblade",
-        "path": "./client/syntaxes/pyblade.tmLanguage.json",
+        "path": "./client/grammars/grammars/pyblade.tmLanguage.json",
         "embeddedLanguages": {
           "source.python": "python"
         }
