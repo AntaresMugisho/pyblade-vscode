@@ -2,7 +2,7 @@
   "name": "pyblade-intellisense",
   "displayName": "PyBlade IntelliSense",
   "description": "IntelliSense and language support for PyBlade templates.",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "publisher": "antares",
   "pricing": "Free",
   "repository": {
