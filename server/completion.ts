@@ -117,7 +117,7 @@ export function componentNames(projects: Project[], log: Log): Found[] {
                     }
                     name = segments.join('.');
                     rank = 2;
-                    detail = 'UI component';
+                    detail = 'Component';
                 } else if (
                     segments.length >= 2 &&
                     segments[segments.length - 1] === segments[segments.length - 2]
@@ -128,8 +128,12 @@ export function componentNames(projects: Project[], log: Log): Found[] {
                 } else {
                     name = segments.join('.');
                     rank = 0;
-                    detail = 'Python component';
+                    detail = 'Live component';
                 }
+
+                // Only the hyphenated spelling is suggested (post_card.html -> pb-post-card);
+                // resolveComponent maps it back to the underscore file name.
+                name = name.replace(/_/g, '-');
 
                 const relFile = path
                     .relative(project.base, path.join(root, file))
@@ -244,11 +248,16 @@ export function getCompletions(
             break;
 
         case 'component':
-            items = componentNames(projects, log).map((c): CompletionItem => {
+            const components = componentNames(projects, log);
+            if (!components.some((c) => c.name === 'slot')) {
+                // Built-in component handled by PyBlade itself, not backed by a file
+                components.push({ name: 'slot', rank: 3, detail: 'Built-in component', file: '' });
+            }
+            items = components.map((c): CompletionItem => {
                 const base: CompletionItem = {
                     label: c.name,
                     kind: CompletionItemKind.File,
-                    detail: `${c.detail} · ${c.file}`,
+                    detail: c.file ? `${c.detail} · ${c.file}` : c.detail,
                     sortText: `${c.rank}${c.name}`,
                     filterText: c.name,
                     textEdit: TextEdit.replace(range, c.name),

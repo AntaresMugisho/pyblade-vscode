@@ -12,6 +12,13 @@
 
     @lorem('b', 'p', 3)
 
+    @commentary
+
+    @comment
+        
+    @endcomment
+
+
     @if (status == 'active')
         <p>Your account is active.</p>
     @elif (status == 'pending')
@@ -40,8 +47,8 @@
     @else
         <p>Hello {{ user.name }}, you are already logged in.</p>
     @endguest
-
-    {# @anonymous
+{# 
+    @anonymous
         <p>Welcome! Please <a href="/login">log in</a> or <a href="/register">sign up</a>.</p>
     @else
         <p>Hello {{ user.name }}, you are already logged in.</p>

@@ -48,7 +48,7 @@ const ENTRIES: Record<string, DirectiveEntry> = {
     stack: { description: 'Outputs a named stack.', args: 'required', end: 'endstack' },
     component: { description: "Renders a component (e.g. `@component('nav/menu')`).", args: 'required', end: 'endcomponent' },
     slot: { description: 'Defines a named slot passed to a component.', args: 'required', end: 'endslot' },
-    script: { description: 'Places extra live comonents scripts at the same place in a template.', args: 'none', end: 'endscript' },
+    script: { description: 'Places extra live components scripts at the same place in a template.', args: 'none', end: 'endscript' },
     pbstyles: { description: 'Outputs the default PyBlade styles.', args: 'none' }, 
     pbscripts: { description: 'Outputs the default PyBlade scripts.', args: 'none' },
     comment: { description: 'Block comment, not rendered in the output.', args: 'none', end: 'endcomment' },
@@ -119,6 +119,9 @@ for (const name of Object.keys(ENTRIES)) {
     }
 }
 
+/** Intermediate tags that may directly follow text, e.g. `@if(a)yes@else no@endif`. */
+const GLUED_OK = new Set(['else', 'elif', 'empty', 'case', 'default', 'plural']);
+
 export const DIRECTIVE_NAMES: string[] = [...Object.keys(ENTRIES), ...END_TAGS.keys()];
 
 export interface Directive {
@@ -169,13 +172,17 @@ function findClosingParen(text: string, openIndex: number): number {
 
 export function findDirectives(text: string): Directive[] {
     const directives: Directive[] = [];
-    // "@name" not preceded by a word character or another "@" (skips emails and "@@" escapes)
-    const re = /(?<![\w@])@(\w+)/g;
+    // "@name" not preceded by another "@" ("@@" escapes). When glued to a word character
+    // (emails, "yes@endif") only closing/intermediate tags count, so `@if(a)yes@endif` works.
+    const re = /(?<!@)@(\w+)/g;
 
     let match: RegExpExecArray | null;
     while ((match = re.exec(text)) !== null) {
         const name = match[1];
         const nameStart = match.index;
+        if (/\w/.test(text[nameStart - 1] ?? '') && !END_TAGS.has(name) && !GLUED_OK.has(name)) {
+            continue;
+        }
         const nameEnd = nameStart + 1 + name.length;
 
         let i = nameEnd;

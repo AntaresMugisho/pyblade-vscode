@@ -74,7 +74,7 @@
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "pretest": "bun run compile && bun run lint",
-    "lint": "eslint client",
+    "lint": "eslint client server",
     "test": "vscode-test"
   },
   "devDependencies": {

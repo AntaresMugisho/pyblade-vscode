@@ -11,9 +11,9 @@
     ],
 
     "autoClosingPairs": [
-        { "open": "'", "close": "'", "notIn": ["string", "comment"] },
+        { "open": "'", "close": "'", "notIn": ["comment"] },
         { "open": "`", "close": "`", "notIn": ["string", "comment"]  },
-        { "open": "\"", "close": "\"", "notIn": ["string", "comment"]  },
+        { "open": "\"", "close": "\"", "notIn": ["comment"]  },
         { "open": "\"\"\"", "close": "\"\"\"", "notIn": ["string"] },
         { "open": "(", "close": ")" },
         { "open": "[", "close": "]" },
@@ -35,8 +35,8 @@
 
     "folding": {
       "markers": {
-        "start": "^\\s*@(?:verbatim|spaceless|comment|if||unless|auth|guest|anonymous|match|switch|for|error|with|active|blocktranslate|blocktrans|component|block|section|push|script)\\b.*$",
-        "end": "^\\s*@(?:endverbatim|ensspaceless|endcomment|endif|endunless|endauth|endguest|endanonymous|endmatch|endswitch|endfor||enderror|endwith|endactive|endblocktranslate|endblocktrans|endcomponent|endblock|endsection|endpush|endscript)\\b.*$"
+        "start": "^\\s*@(?:verbatim|spaceless|comment|if|unless|auth|guest|anonymous|match|switch|for|error|with|active|ifchanged|blocktranslate|blocktrans|component|block|section|push|slot|script|persist)\\b(?!.*@end\\w+).*$",
+        "end": "^\\s*@(?:endverbatim|endspaceless|endcomment|endif|endunless|endauth|endguest|endanonymous|endmatch|endswitch|endfor|enderror|endwith|endactive|endifchanged|endblocktranslate|endblocktrans|endcomponent|endblock|endsection|endpush|endslot|endscript|endpersist)\\b.*$"
       }
     }
   }

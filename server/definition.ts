@@ -25,7 +25,7 @@ export function templateRootsOf(projects: Project[]): string[] {
 /**
  * Resolves a component name to a file, in this order:
  *   nav.menu -> nav/menu.py, nav/menu/menu.py (live), nav/menu.html
- * Dots are folder separators. Live and Python components both land on the .py file.
+ * Dots are folder separators. Live components both land on the .py file.
  * `roots` can be passed in to avoid rescanning the disk for every name.
  */
 export function resolveComponent(
@@ -41,9 +41,17 @@ export function resolveComponent(
         return undefined;
     }
 
-    const rel = parts.join('/');
-    const last = parts[parts.length - 1];
-    const candidates = [`${rel}.py`, `${rel}/${last}.py`, `${rel}.html`];
+    // `pb-my-card` also finds `my_card` (hyphens may be written as underscores in file names)
+    const variants = [parts];
+    if (name.includes('-')) {
+        variants.push(parts.map((p) => p.replace(/-/g, '_')));
+    }
+
+    const candidates = variants.flatMap((segments) => {
+        const rel = segments.join('/');
+        const last = segments[segments.length - 1];
+        return [`${rel}.py`, `${rel}/${last}.py`, `${rel}.html`];
+    });
 
     for (const candidate of candidates) {
         for (const root of roots) {

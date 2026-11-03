@@ -25,7 +25,7 @@
     },
     {
       "name": "comment.block.pyblade",
-      "begin": "@comment",
+      "begin": "(?<![\\w@])@comment\\b",
       "end": "@endcomment"
     },
     {
@@ -40,26 +40,66 @@
   ],
   "repository": {
     "interpolation": {
-      "begin": "(\\{\\{|\\{!!)",
-      "end": "(\\}\\}|!!\\})",
-      "contentName": "source.python",
       "patterns": [
         {
-          "include": "source.python"
+          "name": "meta.embedded.echo.pyblade",
+          "begin": "\\{\\{",
+          "end": "\\}\\}",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.definition.template-expression.begin.pyblade"
+            }
+          },
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.template-expression.end.pyblade"
+            }
+          },
+          "contentName": "source.python",
+          "patterns": [
+            {
+              "include": "source.python"
+            }
+          ]
+        },
+        {
+          "name": "meta.embedded.echo.raw.pyblade",
+          "begin": "\\{!!",
+          "end": "!!\\}",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.definition.template-expression.begin.raw.pyblade"
+            }
+          },
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.template-expression.end.raw.pyblade"
+            }
+          },
+          "contentName": "source.python",
+          "patterns": [
+            {
+              "include": "source.python"
+            }
+          ]
         }
       ]
     },
     "directives": {
       "patterns": [
         {
-          "begin": "@(if|elif|for|error|with|unless|match|switch|case|ifchanged|active)\\s*\\(",
+          "name": "constant.character.escape.pyblade",
+          "match": "@@(?=\\w)"
+        },
+        {
+          "begin": "(?<![\\w@])@(unless|switch|match|elif|case|if)\\b\\s*\\(",
           "end": "\\)",
-          "captures": {
+          "beginCaptures": {
             "0": {
-              "name": "keyword.control.pyblade"
+              "name": "keyword.control.conditional.pyblade"
             }
           },
-          "contentName": "source.python",
+          "contentName": "meta.arguments.pyblade source.python",
           "patterns": [
             {
               "include": "source.python"
@@ -67,50 +107,184 @@
           ]
         },
         {
-          "begin": "@(extends|yield|section|block|include|push|stack|slot|component|persist)\\s*\\(",
+          "begin": "(?<![\\w@])@(resetcycle|ifchanged|continue|break|cycle|for)\\b\\s*\\(",
           "end": "\\)",
-          "captures": {
+          "beginCaptures": {
             "0": {
-              "name": "keyword.control.pyblade"
+              "name": "keyword.control.loop.pyblade"
             }
           },
-          "patterns": [
-            {
-              "name": "string.quoted.single.pyblade",
-              "match": "'[^']*'"
-            },
-            {
-              "name": "string.quoted.double.pyblade",
-              "match": "\"[^\"]*\""
-            }
-          ]
-        },
-        {
-          "begin": "@(url|lorem|languages|lang|widthratio|ratio|static|translate|trans|class|props|style|field|break|continue|checked|selected|required|autofocus|multiple|readonly|cycle|resetcycle|firstof|regroup|now|querystring|get_static_prefix|get_media_prefix|gsp|gmp)\\s*\\(",
-          "end": "\\)",
-          "captures": {
-            "0": {
-              "name": "support.function.pyblade"
-            }
-          },
-          "contentName": "source.python",
+          "contentName": "meta.arguments.pyblade source.python",
           "patterns": [
             {
               "include": "source.python"
-            },
-            {
-              "name": "string.quoted.single.pyblade",
-              "match": "'[^']*'"
-            },
-            {
-              "name": "string.quoted.double.pyblade",
-              "match": "\"[^\"]*\""
             }
           ]
         },
         {
-          "name": "keyword.control.pyblade",
-          "match": "@(ifchanged|endifchanged|if|elif|else|lorem|debug|languages|lang|unless|match|switch|case|default|for|empty|break|continue|auth|guest|anonymous|csrf|field|class|props|required|selected|checked|autofocus|readonly|multiple|active|static|extends|yield|section|blocktranslate|endblocktranslate|plural|blocktrans|endblocktrans|block|endblock|include|endif|endfor|endswitch|endauth|endguest|endanonymous|enderror|endactive|endsection|stack|endstack|push|endpush|script|endscript|pbstyles|pbscripts|parent|verbatim|endverbatim|spaceless|endspaceless|endunless|endmatch|with|endwith|now|get_static_prefix|get_media_prefix|gsp|gmp|slot|endslot|component|endcomponent|persist|endpersist)\\b"
+          "begin": "(?<![\\w@])@(active|error)\\b\\s*\\(",
+          "end": "\\)",
+          "beginCaptures": {
+            "0": {
+              "name": "keyword.control.auth.pyblade"
+            }
+          },
+          "contentName": "meta.arguments.pyblade source.python",
+          "patterns": [
+            {
+              "include": "source.python"
+            }
+          ]
+        },
+        {
+          "begin": "(?<![\\w@])@(extends|include)\\b\\s*\\(",
+          "end": "\\)",
+          "beginCaptures": {
+            "0": {
+              "name": "keyword.control.import.pyblade"
+            }
+          },
+          "contentName": "meta.arguments.pyblade source.python",
+          "patterns": [
+            {
+              "include": "source.python"
+            }
+          ]
+        },
+        {
+          "begin": "(?<![\\w@])@(component|section|block|yield|stack|push|slot)\\b\\s*\\(",
+          "end": "\\)",
+          "beginCaptures": {
+            "0": {
+              "name": "storage.type.layout.pyblade"
+            }
+          },
+          "contentName": "meta.arguments.pyblade source.python",
+          "patterns": [
+            {
+              "include": "source.python"
+            }
+          ]
+        },
+        {
+          "begin": "(?<![\\w@])@(props|with)\\b\\s*\\(",
+          "end": "\\)",
+          "beginCaptures": {
+            "0": {
+              "name": "keyword.other.scope.pyblade"
+            }
+          },
+          "contentName": "meta.arguments.pyblade source.python",
+          "patterns": [
+            {
+              "include": "source.python"
+            }
+          ]
+        },
+        {
+          "begin": "(?<![\\w@])@(blocktranslate|blocktrans|translate|languages|plural|trans|lang)\\b\\s*\\(",
+          "end": "\\)",
+          "beginCaptures": {
+            "0": {
+              "name": "support.function.i18n.pyblade"
+            }
+          },
+          "contentName": "meta.arguments.pyblade source.python",
+          "patterns": [
+            {
+              "include": "source.python"
+            }
+          ]
+        },
+        {
+          "begin": "(?<![\\w@])@(autofocus|selected|required|multiple|readonly|checked|class|style|field)\\b\\s*\\(",
+          "end": "\\)",
+          "beginCaptures": {
+            "0": {
+              "name": "support.function.attribute.pyblade"
+            }
+          },
+          "contentName": "meta.arguments.pyblade source.python",
+          "patterns": [
+            {
+              "include": "source.python"
+            }
+          ]
+        },
+        {
+          "begin": "(?<![\\w@])@(querystring|widthratio|firstof|regroup|static|ratio|lorem|url|now)\\b\\s*\\(",
+          "end": "\\)",
+          "beginCaptures": {
+            "0": {
+              "name": "support.function.helper.pyblade"
+            }
+          },
+          "contentName": "meta.arguments.pyblade source.python",
+          "patterns": [
+            {
+              "include": "source.python"
+            }
+          ]
+        },
+        {
+          "name": "keyword.control.conditional.pyblade",
+          "match": "(?<![\\w@])@(default|unless|switch|match|elif|else|case|if)\\b"
+        },
+        {
+          "name": "keyword.control.conditional.pyblade",
+          "match": "(?<!@)@(endunless|endswitch|endmatch|endif)\\b"
+        },
+        {
+          "name": "keyword.control.loop.pyblade",
+          "match": "(?<![\\w@])@(resetcycle|ifchanged|continue|empty|break|cycle|for)\\b"
+        },
+        {
+          "name": "keyword.control.loop.pyblade",
+          "match": "(?<!@)@(endifchanged|endfor)\\b"
+        },
+        {
+          "name": "keyword.control.auth.pyblade",
+          "match": "(?<![\\w@])@(anonymous|active|guest|error|auth)\\b"
+        },
+        {
+          "name": "keyword.control.auth.pyblade",
+          "match": "(?<!@)@(endanonymous|endactive|endguest|enderror|endauth)\\b"
+        },
+        {
+          "name": "keyword.control.import.pyblade",
+          "match": "(?<![\\w@])@(extends|include)\\b"
+        },
+        {
+          "name": "storage.type.layout.pyblade",
+          "match": "(?<![\\w@])@(component|section|persist|parent|script|block|yield|stack|push|slot)\\b"
+        },
+        {
+          "name": "storage.type.layout.pyblade",
+          "match": "(?<!@)@(endcomponent|endsection|endpersist|endscript|endblock|endstack|endpush|endslot)\\b"
+        },
+        {
+          "name": "keyword.other.scope.pyblade",
+          "match": "(?<![\\w@])@(spaceless|verbatim|comment|props|with)\\b"
+        },
+        {
+          "name": "keyword.other.scope.pyblade",
+          "match": "(?<!@)@(endspaceless|endverbatim|endcomment|endwith)\\b"
+        },
+        {
+          "name": "support.function.i18n.pyblade",
+          "match": "(?<![\\w@])@(blocktranslate|blocktrans|translate|languages|plural|trans|lang)\\b"
+        },
+        {
+          "name": "support.function.i18n.pyblade",
+          "match": "(?<!@)@(endblocktranslate|endblocktrans)\\b"
+        },
+        {
+          "name": "support.function.attribute.pyblade",
+          "match": "(?<![\\w@])@(autofocus|selected|required|multiple|readonly|checked|class|style|field)\\b"
+        },
+        {
+          "name": "support.function.helper.pyblade",
+          "match": "(?<![\\w@])@(get_static_prefix|get_media_prefix|querystring|widthratio|pbscripts|pbstyles|firstof|regroup|static|ratio|lorem|debug|csrf|url|now|gsp|gmp)\\b"
         }
       ]
     }

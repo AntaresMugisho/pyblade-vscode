@@ -97,9 +97,6 @@ def home(request):
         "sizes": ["S", "M", "L", "XL", "XXL"],
     }
 
-
-
-
     return render(request, "home", context=context )
 
 urlpatterns = [
