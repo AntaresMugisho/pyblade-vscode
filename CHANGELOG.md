@@ -2,6 +2,23 @@
 
 All notable changes to the "pyblade-intellisense" extension will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
+## [0.3.1]
+
+### Added
+- **Component completion** now suggests the built-in `<pb-slot>` component.
+
+### Changed
+- **Component names are suggested hyphenated only** (`post_card.html` is offered as `pb-post-card`, `nav/main_menu.html` as `pb-nav.main-menu`).
+- **Component resolution** also looks for underscore file names: `pb-post-card` resolves to `post_card.html` / `.py`. This applies to go to definition and to the "component not found" warnings.
+- **Syntax highlighting groups directives by category** (conditionals, loops, auth, inheritance, layout, scope, i18n, attribute helpers and helpers) instead of two scopes, so themes can colour them differently. `{{ }}` and `{!! !!}` get their own delimiter scopes, and `@@` escapes are highlighted.
+- **Quotes `'` and `"` now auto-close inside strings**, for example `href="@url('` becomes `href="@url('')"`. They still do not auto-close inside `{# #}` comments.
+
+### Fixed
+- False "`@if` is never closed" errors when the closing tag directly follows text on the same line (`@if(a)yes@endif`, `@if(a)yes@else no@endif`).
+- Code folding: any line starting with `@word` was treated as a fold marker, `@endspaceless` was misspelled, `@ifchanged`, `@slot` and `@persist` blocks were missing, and single-line `@if(a) ... @endif` opened a fold that never closed.
+- `@commentary` (and other `@comment...` words) started a comment block in syntax highlighting.
+- Typo in the `@script` hover description.
+
 ## [0.3.0] - 2026-10-02
 
 ### Added
